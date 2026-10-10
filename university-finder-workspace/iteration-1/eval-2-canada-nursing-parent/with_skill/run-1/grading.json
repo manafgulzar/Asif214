@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Groups universities into Reach, Match and Safety categories",
+      "passed": true,
+      "evidence": "Reach/Match/Safety headings plus an 'Outside Ontario' section"
+    },
+    {
+      "text": "Includes a comparison table with tuition, requirements and deadline columns",
+      "passed": true,
+      "evidence": "Table: tuition, living, key requirements, deadline, funding"
+    },
+    {
+      "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+      "passed": true,
+      "evidence": "Sources section with URLs"
+    },
+    {
+      "text": "Ends with concrete, numbered next steps",
+      "passed": true,
+      "evidence": "'## Next steps' numbered 1-9 with dates"
+    },
+    {
+      "text": "Mentions the OUAC application system and a January deadline",
+      "passed": true,
+      "evidence": "OUAC by January 15, 2027"
+    },
+    {
+      "text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)",
+      "passed": true,
+      "evidence": "ENG4U, SBI4U, SCH4U, 12U math"
+    },
+    {
+      "text": "Addresses clinical placement / co-op quality, as the parent asked",
+      "passed": true,
+      "evidence": "'First, about co-op in nursing' section; compares placement hospitals"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  }
+}

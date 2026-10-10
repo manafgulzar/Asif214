@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Groups universities into Reach, Match and Safety categories",
+      "passed": true,
+      "evidence": "Reach / Target / Safer shortlist"
+    },
+    {
+      "text": "Includes a comparison table with tuition, requirements and deadline columns",
+      "passed": false,
+      "evidence": "The comparison table has tuition, living and requirement rows but no deadline row"
+    },
+    {
+      "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+      "passed": true,
+      "evidence": "Sources section with 5 URLs"
+    },
+    {
+      "text": "Ends with concrete, numbered next steps",
+      "passed": true,
+      "evidence": "'## 4. Next steps' numbered 1-6, followed by a short bottom line"
+    },
+    {
+      "text": "Compares all three named universities (TUM, UvA, KTH) directly",
+      "passed": true,
+      "evidence": "Table columns TUM | KTH | UvA\u2192TU Delft"
+    },
+    {
+      "text": "Converts costs to INR",
+      "passed": true,
+      "evidence": "\u20b9 totals per year"
+    },
+    {
+      "text": "Flags that the student must take IELTS/TOEFL before applying",
+      "passed": true,
+      "evidence": "'Book IELTS, aiming for 7.0'"
+    },
+    {
+      "text": "Notes that TUM now charges tuition to non-EU students",
+      "passed": true,
+      "evidence": "'non-EU fees of \u20ac4,000\u20136,000 per semester, introduced recently'"
+    },
+    {
+      "text": "Gives a clear final recommendation",
+      "passed": true,
+      "evidence": "'Choose TUM'"
+    },
+    {
+      "text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead",
+      "passed": true,
+      "evidence": "'UvA: no' ME master's; suggests TU Delft / TU/e / Twente"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 1,
+    "total": 10,
+    "pass_rate": 0.9
+  }
+}

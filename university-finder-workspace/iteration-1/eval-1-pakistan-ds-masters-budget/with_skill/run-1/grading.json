@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Groups universities into Reach, Match and Safety categories",
+      "passed": true,
+      "evidence": "Reach/Match/Safety headings with 4/6/1 entries"
+    },
+    {
+      "text": "Includes a comparison table with tuition, requirements and deadline columns",
+      "passed": true,
+      "evidence": "Table: University|Country|Program|Est. annual tuition|Living|Key requirements|Deadline|Scholarships"
+    },
+    {
+      "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+      "passed": true,
+      "evidence": "Sources section with ~20 URLs plus an 'approximate, verify' note"
+    },
+    {
+      "text": "Ends with concrete, numbered next steps",
+      "passed": true,
+      "evidence": "'## Next steps' numbered 1-8 with dates"
+    },
+    {
+      "text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship",
+      "passed": true,
+      "evidence": "Each option is costed against $15k; Erasmus Mundus, T\u00fcrkiye Burslari and GKS labelled fully funded; Saarland flagged as needing an IELTS retake"
+    },
+    {
+      "text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)",
+      "passed": true,
+      "evidence": "Stipendium Hungaricum, T\u00fcrkiye Burslari, Erasmus Mundus, GKS, DSU, Padua Excellence"
+    },
+    {
+      "text": "Does not recommend Norway as a free-tuition option",
+      "passed": true,
+      "evidence": "Norway not mentioned"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Groups universities into Reach, Match and Safety categories",
+      "passed": true,
+      "evidence": "\ud83c\udfaf Reach / \u2705 Match / \ud83d\udedf Safety"
+    },
+    {
+      "text": "Includes a comparison table with tuition, requirements and deadline columns",
+      "passed": true,
+      "evidence": "Table includes tuition, living, total \u20b9, requirements, deadline, scholarships"
+    },
+    {
+      "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+      "passed": true,
+      "evidence": "Sources section with URLs; general-knowledge items flagged to verify"
+    },
+    {
+      "text": "Ends with concrete, numbered next steps",
+      "passed": true,
+      "evidence": "'## Next steps' numbered 1-8"
+    },
+    {
+      "text": "Compares all three named universities (TUM, UvA, KTH) directly",
+      "passed": true,
+      "evidence": "'Short answer' covers UvA, TUM and KTH one by one"
+    },
+    {
+      "text": "Converts costs to INR",
+      "passed": true,
+      "evidence": "Total per year in \u20b9 lakh in the table and the text"
+    },
+    {
+      "text": "Flags that the student must take IELTS/TOEFL before applying",
+      "passed": true,
+      "evidence": "'This week: book IELTS Academic' for Nov 2026, target 7.0"
+    },
+    {
+      "text": "Notes that TUM now charges tuition to non-EU students",
+      "passed": true,
+      "evidence": "'Since 2024 TUM charges non-EU master's students \u20ac4,000\u20136,000 per semester'"
+    },
+    {
+      "text": "Gives a clear final recommendation",
+      "passed": true,
+      "evidence": "'My recommendation: apply to TUM, and to KTH only with its scholarship. Drop UvA'"
+    },
+    {
+      "text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead",
+      "passed": true,
+      "evidence": "'UvA doesn't run an MSc in Mechanical Engineering'; suggests TU Delft, TU/e, Twente"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  }
+}

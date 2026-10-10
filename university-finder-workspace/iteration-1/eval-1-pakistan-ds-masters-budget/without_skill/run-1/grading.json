@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Groups universities into Reach, Match and Safety categories",
+      "passed": false,
+      "evidence": "Uses Tier 1/2/3 by country; only Malaysia is called a 'safety'. No Reach/Match/Safety classification per university"
+    },
+    {
+      "text": "Includes a comparison table with tuition, requirements and deadline columns",
+      "passed": false,
+      "evidence": "Tables have only University|Program|Notes columns: no tuition, requirements or deadline columns"
+    },
+    {
+      "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+      "passed": true,
+      "evidence": "'Sources (for key figures checked)' with 7 URLs, plus a note to verify"
+    },
+    {
+      "text": "Ends with concrete, numbered next steps",
+      "passed": false,
+      "evidence": "Timeline is a table (not numbered) in the middle; the answer ends with general tips"
+    },
+    {
+      "text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship",
+      "passed": true,
+      "evidence": "Mannheim's \u20ac1,500/semester and TUM flagged as over budget; the rest are in budget-friendly countries"
+    },
+    {
+      "text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)",
+      "passed": true,
+      "evidence": "Stipendium Hungaricum, CSC, GKS, T\u00fcrkiye Burslari, Erasmus Mundus"
+    },
+    {
+      "text": "Does not recommend Norway as a free-tuition option",
+      "passed": true,
+      "evidence": "Norway not recommended"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 3,
+    "total": 7,
+    "pass_rate": 0.571
+  }
+}

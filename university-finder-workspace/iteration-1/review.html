@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "university-finder", "runs": [{"id": "eval-1-pakistan-ds-masters-budget-with_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "response.md", "type": "text", "content": "# University Shortlist for a Pakistani CS Graduate: MS Data Science / AI, Fall 2027, ~$15k/year\n\n**Your profile:** BS Computer Science (Pakistan), CGPA 3.2/4.0, IELTS 6.5 overall, Master's in Data Science or AI, Fall 2027 start, about **$15,000/year in total** (tuition + living), open to Europe and Asia, Pakistani national.\n\n**Assumptions:**\n- Your degree is a 16-year (4-year, ~130+ credit hours) HEC-recognised BS. That meets the \"bachelor's degree\" requirement almost everywhere in Europe.\n- Your IELTS 6.5 has no band below 6.0, and it will still be valid (2 years) when you apply.\n- Exchange rates are approximate (Oct 2026): \u20ac1 \u2248 $1.15, $1 \u2248 RM 4.2, \u20ac1 \u2248 HUF 390. So your budget is about **\u20ac13,000 or RM 63,000 per year**.\n- **Grade conversion (approximate):** 3.2/4.0 is a solid \"B\". Under the German modified-Bavarian formula it usually works out to about **2.2\u20132.5**. That is fine for most German programs, but not for the most competitive ones. Each university does its own conversion.\n\n**The honest headline:** $15k/year is enough for **tuition-free Germany** (just about), **low-fee Italy** (comfortably if you also win a regional or university scholarship) and **Malaysia**. It is **not** enough for the UK, Netherlands, Ireland or Sweden without a full scholarship, so I've left them out. Your strongest strategy is to **apply on two tracks at once**:\n1. Low-cost admissions you can pay for yourself: Germany, Italy, Malaysia.\n2. Fully funded government scholarships: Stipendium Hungaricum, T\u00fcrkiye Burslari, Erasmus Mundus, GKS.\n\nIf a scholarship comes through, great. If not, you still have an affordable seat.\n\n---\n\n## Shortlist\n\n### \ud83c\udfaf Reach\n- **Saarland University** (Germany): MSc Data Science and Artificial Intelligence. This is a top AI cluster (it sits next to the Max Planck Institutes and DFKI) and there is **no tuition**, only about \u20ac300/semester in fees. The main hurdles are an expected **IELTS 7.0** (you have 6.5) and a competitive pool. Apply only if you retake IELTS. The early deadline (15 Nov) is too close, so target the normal 15 May deadline.\n- **Erasmus Mundus Joint Master's in Data Science / AI** (multiple EU countries), e.g. the DEAI program (Data Engineering & AI) and the new AI-focused masters selected for the 2027 intake. **Fully funded**: about \u20ac1,400/month plus tuition and travel. These are very selective (often <10% acceptance), but open to all nationalities and worth one strong application.\n- **T\u00fcrkiye Burslari** (Turkey): government scholarship for a Data Science / AI / Computer Engineering master's at a Turkish university (e.g. METU, Hacettepe, ITU). It covers tuition, housing, a stipend (about TL 6,500/month for master's), insurance and a flight, plus a 1-year Turkish course. It is competitive, but Pakistani applicants do well. You must be under 30.\n- **Global Korea Scholarship (GKS) \u2013 Graduate** (South Korea): fully funded master's at KAIST, Korea University, etc., plus 1 year of Korean language. The catch is timing: you would do the language year from about Sept 2027 and **start the degree in 2028**. Highly competitive, and the embassy track is usually Feb\u2013Mar.\n\n### \u2705 Match\n- **University of Hildesheim** (Germany): MSc Data Analytics (English, 4 semesters). It is **tuition-free** (about \u20ac378/semester in fees), designed for CS graduates, and has a large South-Asian cohort. Your profile fits well. The hurdle is money, not admission: the German **blocked account is \u20ac11,904/year (\u20ac992/month)**, so your total is about \u20ac12,700 \u2248 $14,600. That just fits, with almost no margin, so you'd want a part-time job (legally allowed).\n- **TU Dortmund University** (Germany): MSc Data Science (English, statistics-heavy). **No tuition** (semester fee only), and it is not admission-restricted. Selection is based mainly on a **10-page statistical report** you write on a project they publish, so your effort matters more than your CGPA. Same blocked-account budget as Hildesheim.\n- **University of Padova** (Italy): MSc Data Science (English). Tuition is about \u20ac2,700/year and income-based, and there are 50 seats for non-EU applicants living abroad. Admission is a realistic match. The prize here is the **Padua International Excellence Scholarship**: a fee waiver plus \u20ac8,000/year for 2 years. You are considered automatically when you apply, but it is merit-based and competitive. Without it: about \u20ac2.7k tuition + \u20ac9\u201310k living \u2248 \u20ac12.5k. That is tight but workable, especially with the regional ESU (DSU) scholarship, which is income-based and something Pakistani students often win.\n- **Sapienza University of Rome** (Italy): MSc Data Science (English). Tuition is about \u20ac2,900/year and English entry is around IELTS 5.5\u20136.0, so you meet it comfortably. Non-EU pre-selection ran Dec 2025\u2013May 2026 last cycle. Rome is pricier, so plan on applying for the **Lazio DiSCo regional scholarship** (income-based: a fee waiver plus a living grant).\n- **ELTE (E\u00f6tv\u00f6s Lor\u00e1nd University), Budapest** (Hungary): MSc Data Science via **Stipendium Hungaricum** (SH). Pakistan is an SH partner country through **HEC**, and SH gives **free tuition**, a dorm place or HUF 40,000/month for housing, a HUF 43,700/month stipend (\u2248\u20ac110) and health insurance. You meet the entry requirements (CS degree, B2 English). The stipend is small, so budget about $4\u20135k/year of family money for Budapest living costs. That is very comfortable within $15k.\n- **Universiti Malaya** (Malaysia): Master of Data Science (coursework). The **total program fee is about RM 41,700 (\u2248$9,900) for the whole degree**, not per year. Kuala Lumpur living costs about $5\u20136k/year. Note: the faculty page lists a **minimum CGPA of 3.30** for science graduates, while the university's general rule is 3.00. Your 3.2 is borderline, so email the faculty before applying. Intakes are March and October, and **October 2027** matches your plan.\n\n### \ud83d\udedf Safety\n- **Universiti Teknologi Malaysia (UTM)** (Malaysia): MSc Data Science. The requirements are a 3.0 CGPA and IELTS 5.5, which you clear comfortably. Malaysian public-university fees and living costs are among the lowest in this list. I couldn't confirm UTM's international fee for this exact program, so **check website**. Treat it as your genuine \"will get in, can afford\" option.\n- **Honest note:** I couldn't find a European option that is both a sure admit *and* clearly affordable without a scholarship. Hildesheim and Dortmund are as close as Europe gets, but the blocked account uses up almost your whole budget. That is why your real safety net is in Malaysia.\n\n---\n\n## Comparison\n\n| University | Country | Program | Est. annual tuition | Est. living cost / yr | Key requirements | Deadline (Fall 2027) | Scholarships |\n|---|---|---|---|---|---|---|---|\n| Saarland University | Germany | MSc Data Science & AI | \u20ac0 (\u2248\u20ac600/yr fees) | \u20ac11,904 (blocked account) \u2248 $13.7k | CS bachelor's, IELTS 7.0, 2 recommendation letters, SOP | Normal deadline **15 May 2027** (early: 15 Nov) | DAAD (limited), Deutschlandstipendium |\n| Erasmus Mundus (DEAI and other DS/AI programs) | Multi-country EU | Joint MSc in Data / AI | Covered by scholarship | ~\u20ac1,400/month stipend | Strong grades, SOP, recommendation letters, IELTS ~6.5 | Mostly **Oct 2026 \u2013 Jan 2027** (check each program) | Full EMJM scholarship |\n| T\u00fcrkiye Burslari | Turkey | MSc Data Science / CS / AI | Covered | Stipend + dorm provided | Under 30, merit, interview | Expected **~10 Jan \u2013 20 Feb 2027** | Full government scholarship |\n| GKS Graduate | South Korea | MS in AI / DS | Covered | Monthly stipend provided | Merit, embassy or university track | Expected **~Feb\u2013Mar 2027** (degree starts 2028) | Full government scholarship |\n| University of Hildesheim | Germany | MSc Data Analytics | \u20ac0 (\u2248\u20ac756/yr fees) | \u20ac11,904 \u2248 $13.7k | CS/IT/Math bachelor's, IELTS 6.0\u20136.5 (sources differ) | Non-EU: **30 Jun 2027** (apply early for visa time) | Deutschlandstipendium (after enrolment) |\n| TU Dortmund | Germany | MSc Data Science | \u20ac0 (semester fee only) | \u20ac11,904 \u2248 $13.7k | CS + math + stats basics, English B2, 10-page statistical report | Winter intake: **~15 Jun\u201315 Jul 2027** (sources differ; check website) | Deutschlandstipendium |\n| University of Padova | Italy | MSc Data Science | ~\u20ac2,700 (income-based) | ~\u20ac9,000\u201310,000 | Strong math/probability/CS courses, English B2 | First call possibly **~Nov 2026**, otherwise early 2027: **check website now** | Padua Excellence (fee waiver + \u20ac8k/yr), ESU regional grant |\n| Sapienza Rome | Italy | MSc Data Science | ~\u20ac2,900 (income-based) | ~\u20ac10,000\u201311,000 | 90 credits in math/CS/physics, IELTS ~5.5\u20136.0 | Non-EU pre-selection ~**Dec 2026 \u2013 May 2027** (based on last cycle) | Lazio DiSCo regional grant |\n| ELTE Budapest (Stipendium Hungaricum) | Hungary | MSc Data Science | Free with SH | ~\u20ac5,000\u20136,000 (SH covers part) | CS bachelor's, English B2, HEC + SH portals, HAT test | Expected **~15 Jan 2027** (both portals) | Stipendium Hungaricum |\n| Universiti Malaya | Malaysia | Master of Data Science | ~RM 41,700 total (\u2248$9.9k for whole program) | ~$5,000\u20136,000 | CGPA 3.0\u20133.3 (unclear), IELTS 6.0 | October 2027 intake: **check website** | Limited university awards |\n| UTM | Malaysia | MSc Data Science | check website | ~$4,500\u20135,500 | CGPA 3.0, IELTS 5.5 | **check website** | Limited |\n\nCosts are in local currency with approximate USD conversions. All figures are from 2025/26\u20132026/27 sources, so **verify the 2027/28 numbers on the official pages** before paying any fee.\n\n---\n\n## Funding options\n1. **Stipendium Hungaricum (via HEC):** fully funded tuition plus a small stipend and housing in Hungary. Pakistani citizens apply on **both** the HEC and SH portals, and MS applicants usually need the **HEC HAT test**. Last cycle closed 15 Jan 2026, so expect about mid-Jan 2027.\n2. **T\u00fcrkiye Burslari:** fully funded, for any nationality, applicants under 30. One online application (choose up to 12 programs). Expected window 10 Jan \u2013 20 Feb 2027.\n3. **Erasmus Mundus Joint Master's:** fully funded (about \u20ac1,400/month), open to all nationalities. Deadlines are mostly Oct 2026 \u2013 Jan 2027, and you can apply to up to 3 programs.\n4. **Italian regional \"DSU\" grants (ESU Padova, Lazio DiSCo, ER.GO Bologna):** income-based, often a fee waiver plus several thousand euros a year for living costs. You need family income and asset documents from Pakistan, legalised. This is often what makes Italy affordable for Pakistani students.\n5. **Padua International Excellence Scholarship:** a fee waiver plus \u20ac8,000/year. You are considered automatically when you apply to an English-taught master's at Padova.\n\n---\n\n## Next steps\n1. **This week (by mid-Oct 2026):** Check the official Padova Data Science page and the Erasmus Mundus catalogue for 2027 deadlines. Some may fall in **November\u2013January**, which is only weeks away.\n2. **Decide on Saarland:** if you want it, book an **IELTS retake** aiming for 7.0. You have until its normal 15 May 2027 deadline, but a test in Nov\u2013Jan leaves time for a second try. A higher score also helps your Erasmus Mundus and scholarship applications.\n3. **Register for the HEC HAT test** (if HEC requires it for the SH cycle) and watch hec.gov.pk for the Stipendium Hungaricum 2027-28 call, likely Nov\u2013Dec 2026.\n4. **Prepare core documents now:**\n   - HEC-attested degree and transcript\n   - CV\n   - A **tailored SOP** for each program (Data Science vs AI framing)\n   - **2 recommendation letters** from CS faculty\n   - Passport valid until at least 2029\n5. **Italy paperwork (start by Dec 2026):** Italian programs need a CIMEA statement or Declaration of Value plus Universitaly pre-enrolment. DSU grants also need family income documents legalised by the Italian embassy in Islamabad. This takes months.\n6. **Jan\u2013Feb 2027:** Submit Stipendium Hungaricum (~15 Jan) and T\u00fcrkiye Burslari (~20 Feb).\n7. **Mar\u2013Jun 2027:** Apply to Hildesheim and TU Dortmund (don't wait for the 30 June / July deadline, because the German visa process from Pakistan can take months). Start the TU Dortmund statistical report as soon as they publish the project. Apply to Universiti Malaya and UTM for the **October 2027** intake.\n8. **Money check:** if you choose Germany, you need **\u20ac11,904 in a blocked account** before the visa appointment. Make sure your family can deposit it in one go.\n\n**Earliest deadlines on this list:** Erasmus Mundus programs and possibly Padova's first call (**Nov 2026 \u2013 Jan 2027**), then Stipendium Hungaricum (**~15 Jan 2027**).\n\n---\n\n## Sources\n- German blocked account 2026 (\u20ac992/month, \u20ac11,904/year): Expatrio \u2014 https://www.expatrio.com/about-germany/blocked-amount-2025\n- Saarland MSc DS & AI (deadlines, IELTS 7 / C1): myGuide \u2014 https://www.myguide.de/en/international-programmes-master/detail/saarland-university-data-science-and-artificial-intelligence-msc-6296/?ip-id=6296 ; Expatrio \u2014 https://expatrio.com/study-finder/search/university-of-the-saarland-data-science-and-artificial-intelligence-104916125664\n- Hildesheim MSc Data Analytics (deadlines, fees, IELTS): myGuide \u2014 https://www.myguide.de/en/international-programmes-master/detail/university-of-hildesheim-data-analytics-msc-5561/?ip-id=5561 ; Expatrio \u2014 https://expatrio.com/study-finder/search/university-of-hildesheim-data-analytics-104916124606\n- TU Dortmund MSc Data Science (admission, report): https://statistik.tu-dortmund.de/en/studies/degrees/data-science-msc/admission/ ; myGuide \u2014 https://www.myguide.de/en/international-programmes-master/detail/tu-dortmund-university-master-of-science-in-data-science-8951/?ip-id=8951\n- University of Padova Data Science (non-EU quota, B2, fees): https://datascience.math.unipd.it/admission/ ; https://apply.unipd.it/courses/course/33\n- Padua International Excellence Scholarship: https://www.unipd.it/en/padua-international-excellence-scholarship-programme\n- Sapienza MSc Data Science (requirements, 2026-27 deadlines): https://corsidilaurea.uniroma1.it/sites/default/files/offertaformativa/documenti_ufficiali/187/33519_e_0.pdf ; https://www.mastersportal.com/studies/75495/data-science.html\n- ELTE Data Science MSc / Stipendium Hungaricum: https://apply.stipendiumhungaricum.hu/courses/course/4094 ; https://www.elte.hu/node/320672\n- Stipendium Hungaricum benefits: https://www.tok.elte.hu/en/stipendium-hungaricum-scholarship\n- HEC Stipendium Hungaricum (Pakistan): https://www.hec.gov.pk/english/scholarshipsgrants/lao/SHSP/Pages/default.aspx\n- T\u00fcrkiye Burslari 2027 expected dates (unofficial; confirm at turkiyeburslari.gov.tr): https://pathlins.com/scholarships/trkiye-scholarships-2027-trkiye-burslar-for-international-students\n- GKS 2027 status: https://www.studyabroad.pk/scholarships/global-korea-scholarship-2027-for-international-students ; NIIED / Study in Korea \u2014 https://www.studyinkorea.go.kr\n- Erasmus Mundus DEAI: https://deai.ulb.be/joint-master-degree-in-data-engineering-and-artificial-intelligence-funded-by-the-european-commission/ ; 2027 overview \u2014 https://www.studyabroad.pk/scholarships/erasmus-mundus-joint-masters-scholarship-2027\n- Universiti Malaya Master of Data Science (fees, CGPA, IELTS, intakes): https://fsktm.um.edu.my/fsktm/doc/postgraduate/fees/Fees_PG_NC.pdf ; https://fsktm.um.edu.my/master-of-data-science-coursework ; https://study.um.edu.my/master-of-data-science-coursework\n- UTM MSc Data Science (entry requirements): https://mycas.educationmalaysia.gov.my/courses/master-of-science-data-science-faculty-of-computing.html\n- Living-cost estimates for Italy, Hungary and Malaysia, and the GPA conversion, are approximate general knowledge as of 2026. Verify on official university and embassy websites.\n"}], "grading": {"expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach/Match/Safety headings with 4/6/1 entries"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": true, "evidence": "Table: University|Country|Program|Est. annual tuition|Living|Key requirements|Deadline|Scholarships"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with ~20 URLs plus an 'approximate, verify' note"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## Next steps' numbered 1-8 with dates"}, {"text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship", "passed": true, "evidence": "Each option is costed against $15k; Erasmus Mundus, T\u00fcrkiye Burslari and GKS labelled fully funded; Saarland flagged as needing an IELTS retake"}, {"text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)", "passed": true, "evidence": "Stipendium Hungaricum, T\u00fcrkiye Burslari, Erasmus Mundus, GKS, DSU, Padua Excellence"}, {"text": "Does not recommend Norway as a free-tuition option", "passed": true, "evidence": "Norway not mentioned"}], "summary": {"passed": 7, "failed": 0, "total": 7, "pass_rate": 1.0}}}, {"id": "eval-1-pakistan-ds-masters-budget-without_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "response.md", "type": "text", "content": "# Master's in Data Science / AI for Fall 2027 on about $15,000 a year\n\nCongratulations on finishing your BS! Your profile is a good fit for budget study abroad. A 3.2/4.0 CGPA and IELTS 6.5 meet the entry requirements for most of the programs below. $15,000 a year is roughly \u20ac13,000. That is enough to live and study in **Germany, Italy, Hungary, China, Taiwan or Malaysia** without a scholarship, or almost without one. It is not enough for the UK, the Netherlands, Ireland, Sweden or Finland unless you win a full scholarship.\n\nIt is October 2026, so **most deadlines fall between December 2026 and March 2027.** Start now.\n\n> Fees, stipends and deadlines change every year. The figures below are approximate. Check each one on the university's official page before you apply.\n\n---\n\n## How to read your profile\n\n| Item | Where you stand |\n|---|---|\n| CGPA 3.2/4.0 | About **2.2 in the German grading system** (modified Bavarian formula). That clears most German cutoffs, which are often 2.5. It is competitive but possible for top schools like TUM, LMU or KAIST. It is fine for Italy, Hungary, China, Taiwan and Malaysia. |\n| IELTS 6.5 | Meets the requirement for most programs listed here. A few top programs and some Erasmus Mundus consortia ask for 7.0, or for no band below 6.5. |\n| Budget $15k/yr | Comfortable in Hungary, China, Taiwan and Malaysia. Workable in Germany and Italy. Too low for the UK, the Netherlands and the Nordics without full funding. |\n| Pakistani passport | Pakistanis do **not** need Germany's APS certificate. HEC is the channel for several government scholarships: Hungary, China and Korea. |\n\n---\n\n## Tier 1: Best fit for your budget (apply to several)\n\n### Germany: no tuition at most public universities\nYou pay only a semester fee, about \u20ac150\u2013350 per semester. For the visa you must show a **blocked account of \u20ac11,904 per year (\u20ac992/month)**, the 2026 figure, which may rise slightly for 2027. All-in, expect about \u20ac12,000\u201313,000 a year ($14\u201315k). You may legally work part-time, and many students earn \u20ac500\u2013900 a month from student jobs.\n\n| University | Program | Notes |\n|---|---|---|\n| **RWTH Aachen** | M.Sc. Data Science | Top technical university. Selective, but your grade is in range. |\n| **Saarland University** | M.Sc. Data Science & AI; M.Sc. Computer Science | Strong in AI (DFKI, Max Planck institutes). Low living costs. |\n| **FAU Erlangen-N\u00fcrnberg** | M.Sc. Data Science; M.Sc. Artificial Intelligence | Bavaria, but **no tuition** (only TUM charges in Bavaria). |\n| **TU Dortmund** | M.Sc. Data Science | Statistics-heavy program. Affordable city. |\n| **Universit\u00e4t Hildesheim** | M.Sc. Data Analytics | Popular with South Asian students. Realistic admission chances. |\n| **Otto-von-Guericke Univ. Magdeburg** | M.Sc. Data & Knowledge Engineering | Very low cost of living. Realistic admission chances. |\n| **Universit\u00e4t Potsdam** | M.Sc. Data Science | Near Berlin. |\n| **Universit\u00e4t Mannheim** | M.Sc. Data Science | Baden-W\u00fcrttemberg charges non-EU students **\u20ac1,500 per semester**, which still fits if you live frugally. |\n| *(Stretch)* **TUM / LMU Munich** | Data Engineering & Analytics / Data Science | TUM now charges non-EU students \u20ac4,000\u20136,000 per semester and Munich is expensive, so this is **probably over budget**. LMU is free but very competitive. |\n\n**Deadlines:** for winter semester 2027 intake, most applications are due **between 31 March and 31 July 2027**, often through uni-assist. Apply early, by about February\u2013March. German student-visa appointments in Islamabad and Karachi can take months to get.\n\n### Italy: low fees plus regional \"DSU\" scholarships\nItalian public universities charge fees based on family income. With a **DSU regional scholarship**, which is need-based and usually gives a full tuition waiver, about \u20ac6,000\u20138,000 a year in cash and sometimes a free canteen or housing, you can get close to zero net cost. Your family's $15k income profile is a strong fit for need-based aid. You will need an **ISEE parificato** (family income and asset documents legalized through the Italian embassy), so start collecting documents now.\n\n| University | Program | Notes |\n|---|---|---|\n| **University of Padova** | M.Sc. Data Science; M.Sc. Computer Engineering (AI track) | Very popular with Pakistani students. Also offers its own merit scholarships for international students. |\n| **Sapienza University of Rome** | M.Sc. Data Science; M.Sc. AI & Robotics | Strong programs. Lazio's DiSCo regional scholarship. |\n| **University of Bologna** | M.Sc. Artificial Intelligence | Highly rated. Offers Unibo Action 1 & 2 scholarships for international students plus ER.GO regional aid. |\n| **Politecnico di Milano** | M.Sc. Computer Science & Engineering; Mathematical Engineering (Statistical Learning) | Merit scholarships give a full tuition waiver plus up to \u20ac10,000/yr. Milan is expensive, so you need DSU or a merit award. |\n| **University of Pisa** | M.Sc. Data Science & Business Informatics; AI | Pisa has a strong CS tradition. |\n| **University of Trento** | M.Sc. Data Science; AI Systems | Small, high quality. Generous Opera Universitaria aid. |\n| **University of Milan (Statale)** | M.Sc. Data Science for Economics | Large public university. |\n\n**Deadlines:** many Italian universities have early windows from **November 2026 to March 2027** for non-EU applicants. Pre-enrollment on Universitaly and the visa process follow in spring and summer. DSU applications are usually due July\u2013September 2027. **Caution:** Italian student-visa processing in Pakistan has had long delays, so apply in the earliest window you can.\n\n### Hungary: Stipendium Hungaricum (fully funded, large Pakistan quota)\nThis is one of the most accessible full scholarships for Pakistani students. It covers **full tuition, a monthly stipend, a dormitory place or housing allowance, and medical insurance.** The stipend is modest (about HUF 43,700/month), so plan on topping it up with roughly $2,000\u20134,000 a year from your family. That fits your budget easily.\n\n| University | Program |\n|---|---|\n| **E\u00f6tv\u00f6s Lor\u00e1nd University (ELTE), Budapest** | M.Sc. Computer Science (Data Science / AI specializations) |\n| **Budapest University of Technology & Economics (BME)** | M.Sc. Computer Science Engineering (Data Science / AI) |\n| **University of Debrecen** | M.Sc. Computer Science / Data Science |\n| **University of Szeged** | M.Sc. Computer Science (AI focus) |\n\n**Deadline:** about **15 January 2027**, unconfirmed and based on past cycles. In 2026 you had to apply on **both the HEC portal and the Stipendium Hungaricum portal**, and missing either meant automatic rejection.\n\n---\n\n## Tier 2: Strong Asian options (cheap living, good scholarships)\n\n### China: CSC (Chinese Government Scholarship) and university scholarships\nThis is fully funded: **tuition, accommodation, medical insurance and a stipend of about CNY 3,000/month.** Pakistani applicants are very welcome, and many programs are English-taught.\n- **Tsinghua, Zhejiang University, Shanghai Jiao Tong, Harbin Institute of Technology, Beihang, Wuhan University, UESTC, Huazhong UST**: all have CS/AI/Data Science master's programs in English.\n- Routes: **CSC Type A** (via HEC or the Chinese embassy) or **Type B** (apply directly to the university, often easier). Many universities also offer their own scholarships.\n- **Deadlines:** usually **January\u2013April 2027**. Contact potential supervisors early, because an acceptance letter from a professor boosts your chances a lot.\n\n### Taiwan: university scholarships for international students\nMany universities offer **tuition waivers plus a monthly stipend** (about NT$10,000\u201320,000) to international master's students. Living costs are low and AI/semiconductor research is strong.\n- **National Tsing Hua University (NTHU), National Cheng Kung University (NCKU), National Yang Ming Chiao Tung University (NYCU), National Taiwan University of Science & Technology (NTUST)**: English-taught CS/AI/Data Science master's programs.\n- **Deadlines:** roughly **December 2026\u2013March 2027** for fall intake.\n\n### South Korea: research universities and GKS\n- **KAIST, POSTECH, UNIST, GIST, DGIST**: international master's students usually receive **full tuition plus a monthly stipend** through scholarships or lab funding. These are competitive, and your projects and a strong statement of purpose matter more than CGPA. Fall 2027 rounds generally close in early 2027.\n- **GKS (Global Korea Scholarship), graduate track:** the 2027 call is expected around **February\u2013March 2027** (not yet announced). **Timing warning:** GKS normally starts with a **one-year Korean language course**, so your degree would begin around **Fall 2028** unless you already hold TOPIK level 5+.\n\n### Malaysia: affordable without a scholarship (safety option)\nA coursework master's lasts 1\u20131.5 years. Total tuition is about **RM 30,000\u201345,000 (about $7,000\u201310,000)** and living costs are about $5,000\u20136,000 a year. It fits your budget with no scholarship, entry is straightforward and the visa process is smooth.\n- **Universiti Malaya (UM)**, M.Sc. Data Science / Applied Computing\n- **Universiti Teknologi Malaysia (UTM)**, M.Sc. Data Science\n- **Universiti Putra Malaysia (UPM)**, Master of Data Science\n- Applications are open almost year-round. Aim for **March\u2013May 2027** for the September intake.\n\n### T\u00fcrkiye: T\u00fcrkiye Burslari (fully funded)\nThis covers tuition, accommodation, a stipend, insurance, a flight and **a one-year Turkish language course**, so your degree would likely start in Fall 2028. Strong English-taught options include **METU (Ankara), Bilkent, Bo\u011fazi\u00e7i and ITU**. **Deadline:** usually around **20 February**.\n\n---\n\n## Tier 3: Stretch scholarships (apply to 2\u20133, they cost only time)\n\n- **Erasmus Mundus Joint Master's** (EU-funded, study in 2\u20133 European countries): covers full tuition plus **about \u20ac1,400/month** for 2 years. Relevant programs: **EMJM in Big Data Management & Analytics (BDMA), Data Science (EMDS), Artificial Intelligence / Intelligent Systems, Cybersecurity**, and others. Search the EACEA Erasmus Mundus catalogue. Deadlines are **mostly December 2026\u2013February 2027**. These are very competitive at 3.2, so strong projects, research or work experience and an excellent motivation letter are essential.\n- **Politecnico di Milano / Unibo / Padova merit scholarships**: listed above. Apply in the earliest window.\n- **Swedish Institute Scholarships for Global Professionals**: fully funded, but they require about 3,000 hours of work experience and demonstrated leadership. Consider it only if you have work experience by the deadline (about February).\n\n---\n\n## My recommended shortlist (10\u201312 applications)\n\n1. **Stipendium Hungaricum**: ELTE + BME *(full scholarship, high success rate for Pakistanis)*\n2. **Germany**: Saarland, FAU Erlangen, TU Dortmund, Hildesheim or Magdeburg, plus one stretch (RWTH Aachen)\n3. **Italy**: Padova, Bologna, Sapienza *(apply for DSU and university merit awards)*\n4. **China**: CSC Type B at Zhejiang, HIT or SJTU\n5. **Taiwan**: NTHU or NCKU with a university scholarship\n6. **Erasmus Mundus**: 2 programs as stretches\n7. **Safety**: Universiti Malaya or UTM\n\nThis mix gives you at least one fully funded option, several no-tuition options in Germany, need-based aid in Italy and a guaranteed-affordable safety in Malaysia.\n\n---\n\n## Timeline from now\n\n| When | What to do |\n|---|---|\n| **Oct\u2013Nov 2026** | Get your degree and transcripts **attested by HEC** (and MOFA where needed). Request 2\u20133 recommendation letters. Write a tailored SOP. Polish your GitHub and projects. Make sure your IELTS will still be valid at enrollment (it is valid for 2 years). |\n| **Nov 2026\u2013Jan 2027** | Italian early windows, Erasmus Mundus, Polimi/Unibo merit scholarships. **Stipendium Hungaricum by about 15 Jan.** |\n| **Jan\u2013Mar 2027** | China CSC, Taiwan, KAIST/UNIST, T\u00fcrkiye Burslari (about 20 Feb), GKS (if you want it). Open uni-assist applications for Germany. |\n| **Mar\u2013May 2027** | German applications (many close 31 May / 15 July). Malaysian applications. Open a German blocked account once you have an admission. |\n| **May\u2013Aug 2027** | Accept offers. **Book visa appointments immediately** (Germany and Italy have long queues in Pakistan). Apply for Italian DSU. Arrange housing. |\n\n---\n\n## Tips to strengthen a 3.2 CGPA application\n- **Show your projects**: a GitHub with 2\u20133 solid ML/data projects, Kaggle work, or your final-year project written up well.\n- **Explain your trajectory**: if your grades improved in later semesters, or your CS/math course grades are higher, say so in your SOP.\n- **Use strong recommendation letters**, ideally from professors who supervised your project or research.\n- **Consider retaking IELTS for 7.0** only if you target Erasmus Mundus or top-tier schools. 6.5 is enough for nearly everything else.\n- **Don't pay agents for the free scholarships** (Stipendium Hungaricum, CSC, DSU, Erasmus Mundus). You can apply directly.\n\nGood luck! With Germany, Italy and Hungary together you have a very realistic path to a quality Master's within your budget.\n\n---\n\n**Sources (for key figures checked):**\n- [Expatrio: German blocked account amount 2026](https://www.expatrio.com/about-germany/blocked-amount-2025)\n- [HEC: Stipendium Hungaricum Scholarship Programme](https://www.hec.gov.pk/english/scholarshipsgrants/lao/SHSP/Pages/default.aspx)\n- [Hungarian MFA: Stipendium Hungaricum application notice](https://telaviv.mfa.gov.hu/en/articles/the-stipendium-hungaricum-online-application-system-is-open)\n- [Politecnico di Milano: Merit-based scholarships](https://www.polimi.it/en/international-prospective-students/laurea-magistrale-programmes-equivalent-to-master-of-science/scholarships/merit-based-scholarships/)\n- [GradGermany: TUM tuition fees 2026](https://www.gradgermany.com/blog/tum-tuition-fees-2026-for-international-students)\n- [University of Glasgow: Erasmus Mundus scholarship (\u20ac1,400/month example)](https://www.gla.ac.uk/postgraduate/erasmusmundus/edumah/scholarships)\n- [Borderless: Global Korea Scholarship status](https://borderless.so/scholarships/gks/global-korea-scholarship)\n"}], "grading": {"expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": false, "evidence": "Uses Tier 1/2/3 by country; only Malaysia is called a 'safety'. No Reach/Match/Safety classification per university"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": false, "evidence": "Tables have only University|Program|Notes columns: no tuition, requirements or deadline columns"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "'Sources (for key figures checked)' with 7 URLs, plus a note to verify"}, {"text": "Ends with concrete, numbered next steps", "passed": false, "evidence": "Timeline is a table (not numbered) in the middle; the answer ends with general tips"}, {"text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship", "passed": true, "evidence": "Mannheim's \u20ac1,500/semester and TUM flagged as over budget; the rest are in budget-friendly countries"}, {"text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)", "passed": true, "evidence": "Stipendium Hungaricum, CSC, GKS, T\u00fcrkiye Burslari, Erasmus Mundus"}, {"text": "Does not recommend Norway as a free-tuition option", "passed": true, "evidence": "Norway not recommended"}], "summary": {"passed": 4, "failed": 3, "total": 7, "pass_rate": 0.571}}}, {"id": "eval-2-canada-nursing-parent-with_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "response.md", "type": "text", "content": "# University Shortlist: Grade 12, Toronto, 91% average, Nursing (BScN), Fall 2027\n\n**Your daughter's profile:** Ontario high school student (OUAC 101 applicant), about 91% average, wants a 4-year Bachelor of Science in Nursing (BScN) starting Fall 2027. Ontario preferred, other provinces acceptable. Budget is flexible. She wants strong clinical placement or co-op.\n\n**Assumptions:**\n- The 91% is her current average. Nursing schools rank applicants on the **top six Grade 12 U/M courses, including the prerequisites**. She will need **ENG4U, SBI4U (Biology), SCH4U (Chemistry) and a Grade 12 U math**. If any of these are missing from her timetable, fix that first. Her Biology and Chemistry marks will matter more than her overall average.\n- She is a Canadian citizen or permanent resident, so she pays domestic fees.\n- She is applying straight from high school, so she needs direct-entry programs. That rules out **U of T's Bloomberg Faculty of Nursing**, which is a 2-year *second-entry* program. Applicants need at least 2 years of university first. One possible route is a science degree somewhere first and then Bloomberg, but it takes longer.\n\n### First, about \"co-op\" in nursing\nAlmost no Canadian BScN program offers co-op in the engineering or business sense. Nursing does things differently: **supervised clinical placements are a required part of every accredited BScN in Canada.** They are needed to write the NCLEX-RN licensing exam. Students usually start in hospitals, long-term care or community health in year 1 or 2 and finish with a full-time \"consolidation\" placement in the final year. So when you compare schools, look at:\n1. Which hospitals the school partners with, and whether she can do placements close to home.\n2. How early clinical work starts.\n3. The final-year consolidation placement. Many students get hired from it.\n\nPaid hands-on experience also exists outside co-op. Many Ontario hospitals hire nursing students in the summer as \"nursing student externs\" or \"unregulated care providers,\" usually after year 2 or 3. Ask about this at open houses.\n\n---\n\n## Shortlist\n\n### Reach (very competitive even at 91%)\n- **McMaster University** (Hamilton, ON). BScN (Nursing I, OUAC code MN). This is one of Canada's best-known nursing schools, with small-group problem-based learning and placements across the Hamilton hospital network. **The main hurdle:** admission is 80% grades and 20% **Casper** (an online situational-judgment test). The minimum to be considered is 85%, and offers usually go much higher. A strong Casper score can carry a 91% student.\n- **Queen's University** (Kingston, ON). Bachelor of Nursing Science (BNSc). It has a small, close-knit class, clinical work at Kingston teaching hospitals, and a strong reputation. **The main hurdle:** Queen's says its admitted average across all programs is about 90.5%, and nursing is among its most competitive. She also has to complete a supplementary application.\n- **Toronto Metropolitan University (TMU)** (downtown Toronto). 4-year Collaborative BScN with Centennial and George Brown. Students admitted to the TMU site do all four years at TMU. She could live at home and do placements in Toronto hospitals. **The main hurdle:** TMU lists its grade range as **\"low 90s\"**, so a 91% is right on the line.\n\n### Match (her 91% is at or above the typical range)\n- **Western University** (London, ON). The new **Direct Entry 3.5-year BScN** (OUAC code ENW), with its first class in Sept 2026. Graduating a semester early means starting work sooner. Clinical placements run through London's teaching hospitals. **The main hurdle:** **Casper is required**, and the guideline is \"high 80s to low 90s.\" Western gives no fixed cutoff. Because the program is new, there is little admissions history to go on.\n- **York University** (Toronto). Direct Entry BScN. It has a strong community and clinical program, and she could commute from home. York says the average must be \"at least the high 80s,\" with 70%+ in each required course. Self-reported data suggests admitted students have a median around 91%. Treat York as a solid match, not a sure thing.\n- **University of Ottawa** (Ottawa, ON). BScN (English or French). It has a large program with broad hospital partnerships, and bilingual nursing is a career asset. I could not confirm a current cutoff from an official source. Mid-to-high 80s is the usual expectation, so check the website.\n\n### Safety (comfortably above the typical range)\n- **Ontario Tech University** (Oshawa, ON). BScN. It is commutable from east Toronto and has modern simulation labs. Third-party data puts the competitive average around the low-to-mid 80s, so I could not confirm an official figure. Her 91% should be comfortably above it.\n- **Nipissing University** (North Bay, ON). BScN. The official listing gives a minimum of 70% and says **the 2026 admission average was \"mid 80s\"**. The program is small (96 seats), with strong rural and northern placements. She is well above the range, and Nipissing also has a later deadline.\n\n### Outside Ontario (optional)\n- **Dalhousie University** (Halifax, NS). BScN. This is a **reach for an Ontario student, whatever her marks**: the program mainly serves Nova Scotia residents and keeps only \"a few\" direct-entry seats for applicants from other provinces. Casper is required.\n- **University of Alberta** (Edmonton, AB). BScN Collaborative. It is a large, highly regarded faculty that takes high school students directly. Offers come out in rounds. The listed application deadline is **March 1**, but check this for 2027. Casper is required.\n- **McGill University** (Montr\u00e9al, QC). BScN. It has a strong reputation, but students from outside Quebec usually start with an extra foundation year, so the program takes 4+ years. Tuition for out-of-province Canadians went up sharply in 2024. The deadline is not confirmed, so check the website.\n\n---\n\n## Comparison\n\n| University | Program | Est. annual tuition (domestic) | Est. living cost | Key requirements | Deadline (Fall 2027) | Funding |\n|---|---|---|---|---|---|---|\n| McMaster | BScN (MN) | ~CAD 6,000\u20137,500 + fees* | ~CAD 15\u201320k (residence + food) | ENG4U, SBI4U, SCH4U, 12U math; min 85%; **Casper (20%)** | **OUAC: Jan 15, 2027**. Casper: book at takeCasper.com, check dates | Automatic entrance awards; check website |\n| Queen's | BNSc | ~CAD 6,000\u20137,500 + fees* | ~CAD 16\u201320k | ENG4U (min 75%), SBI4U, SCH4U, 4U math, +2 U/M; **supplementary application** | **Application: Feb 1, 2027. Supplementary: Feb 15, 2027** | Automatic entrance awards + major admission awards; check website |\n| TMU | Collaborative BScN | ~CAD 6,000\u20137,500 + fees* | **Low if she lives at home** | ENG4U, SBI4U, SCH4U, 12U math; \"low 90s\" | Check website (2026 cycle closed early Feb) | Automatic entrance awards |\n| Western | Direct Entry 3.5-yr BScN (ENW) | ~CAD 6,000\u20137,500 + fees* | ~CAD 15\u201320k | 70%+ in ENG4U, SBI4U, SCH4U, math; **Casper** | Check website (2026 cycle: Feb 15, 2026) | Automatic entrance awards |\n| York | Direct Entry BScN | ~CAD 6,000\u20137,500 + fees* | **Low if she lives at home** | ENG4U, 4U math, SBI4U, SCH4U/SPH4U, +2; 70%+ each; high 80s+ | Check website (supplementary may be required) | Automatic entrance awards |\n| uOttawa | BScN | ~CAD 6,000\u20137,500 + fees* | ~CAD 15\u201320k | ENG4U, SBI4U, SCH4U, 4U math | Check website | Automatic entrance awards |\n| Ontario Tech | BScN | ~CAD 6,000\u20137,500 + fees* | Commutable or ~CAD 14\u201318k | ENG4U, SBI4U, SCH4U, 4U math | Check website | Automatic entrance awards |\n| Nipissing | BScN (PSN) | ~CAD 6,000\u20137,500 + fees* | ~CAD 12\u201316k | ENG4U, SBI4U, SCH4U (4U math recommended); 2026 average mid-80s | **Equal consideration: Feb 17, 2027** | Automatic entrance awards |\n| Dalhousie | BScN | Check website (out-of-province) | ~CAD 15\u201320k | Gr 12 English, math, bio, chem (70%+ each); **Casper**; few out-of-province seats | Check website | Check website |\n| U of Alberta | BScN Collaborative | Check website | ~CAD 14\u201318k | Casper; prerequisites per AB equivalents | **Mar 1** (check 2027); Casper by **May 2** | Check website |\n| McGill | BScN | Out-of-province Canadian rate, higher since 2024; check website | ~CAD 16\u201322k | Possible foundation year for non-Quebec students | Check website | Check website |\n\n*Ontario domestic tuition was frozen from 2019 to 2026. A new provincial framework lets universities raise Ontario-resident tuition by up to 2% a year starting in 2026-27, and out-of-province students can be charged up to 5% more a year. The figures above are approximate base tuition. Nursing can add ancillary, uniform, equipment and clinical-travel costs. All figures are in CAD.\n\n**The biggest cost difference is living expenses.** TMU and York let her live at home and save about CAD 15\u201320k a year compared with moving away. Ontario Tech is also commutable from parts of the GTA.\n\n---\n\n## Funding options\n1. **Automatic entrance scholarships.** Most Ontario universities give these to students with roughly 90%+ averages. Amounts vary by school, and no separate application is usually needed. Check each school's scholarship page for current amounts.\n2. **Major / competitive entrance awards** (e.g., Queen's major admission awards, McMaster and Western named awards). These need separate applications, often due **earlier than the program deadline** (some in late fall), so check them now.\n3. **OSAP.** Ontario's student aid. It is income-tested, so even families who don't expect much should check eligibility once she accepts an offer.\n4. **Hospital foundation and nursing association bursaries** in upper years, plus Ontario's **Nursing Graduate Guarantee**, which funds new-grad nursing positions after graduation.\n\n---\n\n## Next steps (today is Oct 10, 2026)\n1. **This week:** Check that her Grade 12 timetable includes **ENG4U, SBI4U, SCH4U and a 4U math (MHF4U, MCV4U or MDM4U)**. Push hard on Bio and Chem. Many schools rank applicants on these marks, and first-semester midterms go out to universities.\n2. **October\u2013November:** Get her OUAC 101 login (PIN) from guidance and start the application. Attend the **Ontario Universities' Fair / virtual open houses**, and at each nursing school ask: *\"Where do first- and second-year clinical placements happen, and how are final consolidation placements assigned?\"*\n3. **By early December:** Choose 5\u20137 programs, for example: McMaster, Queen's, TMU, Western, York, Ontario Tech, Nipissing. Every pick here is in Ontario, so they all fit in one OUAC application. Each extra choice beyond the base 3 costs extra. Look up deadlines for **major entrance scholarships**, which can fall before the program deadline.\n4. **Casper prep and booking (now through January):** McMaster, Western, Dalhousie and Alberta all require **Casper**. One sitting can usually be sent to several schools. **Book a test date as soon as the 2026-27 dates are posted at takeCasper.com.** Seats fill up, and missing Casper means automatic rejection at those schools.\n5. **Submit OUAC by January 15, 2027.** This is the equal-consideration deadline for Ontario high school students and the firm deadline for McMaster. Aim for mid-December so you aren't rushing.\n6. **Queen's:** Application by **Feb 1, 2027**, and supplementary application by **Feb 15, 2027**.\n7. **Nipissing:** Equal-consideration deadline **Feb 17, 2027**. It is covered if you have already applied by Jan 15.\n8. **Out-of-province (optional):** Apply directly on each school's own portal. U of Alberta's listed deadline is **March 1** (check for 2027). Dalhousie and McGill are not confirmed, so check their sites in November.\n9. **Spring 2027:** Ontario universities must give decisions to Jan-15 applicants by about late May. She can't be required to accept an offer before **June 1, 2027**.\n\n**Honest summary:** At 91% she is competitive everywhere on this list but guaranteed nowhere at the top. Nursing is one of the most oversubscribed programs in Ontario. A balanced list such as McMaster, Queen's and TMU as reaches, Western, York and uOttawa as matches, and Ontario Tech and Nipissing as safeties gives her a very high chance of starting a BScN in Fall 2027. Her best levers are **strong Bio and Chem marks** and **good Casper preparation**.\n\n---\n\n## Sources\n- OUAC Fall 2027 Ontario high school deadline (Jan 15, 2027), as confirmed by Laurier: https://www.wlu.ca/future-students/undergraduate/admissions/process/index.html\n- McMaster Nursing I (MN) on OUInfo (85% minimum, 80% GPA / 20% Casper, Jan 15, 2027): https://ouinfo.ca/programs/mn\n- Queen's admission key dates (Feb 1 / Feb 15, 2027 supplementary): https://www.queensu.ca/admission/applying/key-dates-deadlines\n- Queen's Nursing on OUInfo: https://ouinfo.ca/programs/qn\n- Queen's Journal, 90.5% average admission grade: https://www.queensjournal.ca/?p=160961\n- TMU Collaborative BScN (\"Low 90s\"): https://torontomu.ca/programs/undergraduate/nursing-collaborative\n- Western Direct Entry 3.5-year BScN: https://www.uwo.ca/fhs/nursing/undergrad/bscn/ and admission info https://uwo.ca/fhs/nursing/undergrad/bscn/admission.html\n- Western nursing (high 80s to low 90s guideline): https://welcome.uwo.ca/what-can-i-study/undergraduate-programs/nursing.html\n- York Direct Entry Nursing: https://www.yorku.ca/health/direct-entry-nursing/\n- Nipissing BScN on OUInfo (2026 average mid-80s, Feb 17, 2027): https://ouinfo.ca/programs/psn\n- Dalhousie Nursing admission requirements: https://dal.ca/faculty/health/nursing/undergraduate-program/admission-requirements.html\n- University of Alberta BScN Collaborative: https://www.ualberta.ca/en/nursing/programs/undergraduate-programs-and-their-admissions-requirements/collaborative-program.html\n- U of T Bloomberg Nursing (second-entry requirements): https://bloomberg.nursing.utoronto.ca/how-to-apply-bachelor-of-science-in-nursing-bscn\n- Ontario tuition framework 2026 (Carleton Board materials): https://carleton.ca/boardofgovernors/wp-content/uploads/sites/157/2026/04/Full-Binder-Open-Board-April-28-2026.pdf\n- Unofficial self-reported average data (York, Ontario Tech, Western): https://uniscope.ca (treat as a rough guide only)\n\n*Averages for uOttawa, Ontario Tech and York and all tuition figures are approximate. Several 2027 deadlines were not yet published when I checked. Confirm every date on the university's own site or ouinfo.ca before relying on it.*\n"}], "grading": {"expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach/Match/Safety headings plus an 'Outside Ontario' section"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": true, "evidence": "Table: tuition, living, key requirements, deadline, funding"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with URLs"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## Next steps' numbered 1-9 with dates"}, {"text": "Mentions the OUAC application system and a January deadline", "passed": true, "evidence": "OUAC by January 15, 2027"}, {"text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)", "passed": true, "evidence": "ENG4U, SBI4U, SCH4U, 12U math"}, {"text": "Addresses clinical placement / co-op quality, as the parent asked", "passed": true, "evidence": "'First, about co-op in nursing' section; compares placement hospitals"}], "summary": {"passed": 7, "failed": 0, "total": 7, "pass_rate": 1.0}}}, {"id": "eval-2-canada-nursing-parent-without_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "response.md", "type": "text", "content": "# Nursing (BScN) options for a Grade 12 Toronto student with a 91% average\n\n*Prepared October 10, 2026, for Fall 2027 entry.*\n\n## The short version\n\n- **91% puts her in a strong position for most Ontario BScN programs.** It is about at the line for the most competitive ones (McMaster, Western, Queen's, TMU), where offers often go to students in the low-to-mid 90s. She should apply to a mix of schools.\n- **The deadline that matters most is January 15, 2027.** That is the OUAC \"equal consideration\" date for current Ontario high school students. A few schools also need extra pieces, such as the **Casper test** or a supplementary form, and some of those are due on separate dates. Out-of-province schools have their own deadlines, mostly February 1 to March 1.\n- **About \"co-op\" in nursing:** almost no Canadian BScN has a formal paid co-op like engineering does. Every accredited BScN instead has **required clinical placements**, usually starting in year 1 or 2. They end with a long final-year **\"consolidation\" or preceptorship**: several hundred hours working one-on-one with an RN. So the useful comparison is the *quality* of the placements: hospital partners, how early they start, and what specialty options there are.\n- **Remember the Grade 12 prerequisites:** English 4U, Biology 4U, Chemistry 4U and a 4U math. Most schools take Advanced Functions, Calculus & Vectors or Data Management. Schools calculate her admission average from her **top 6 4U/M courses including those prerequisites**. That number can differ from her overall average, so work it out.\n\n---\n\n## Ontario options (apply through OUAC)\n\n| School | Competitiveness for her (91%) | Extra requirements | Clinical / placement strengths |\n|---|---|---|---|\n| **McMaster** (Hamilton). Also offered at Mohawk and Conestoga sites | **Reach / competitive.** OUAC lists 85% as the minimum. Historically about 92% was the informal cutoff, but McMaster now weighs Casper heavily. | **Casper required.** Selection is about 80% grades and 20% Casper. | Problem-based small-group learning. Placements across Hamilton Health Sciences and St. Joseph's. Highly regarded program. |\n| **Western** (London), Arthur Labatt School of Nursing | **Competitive.** Self-reported admitted averages cluster around 93\u201396%, but students have been admitted in the high 80s. | Check for a supplementary requirement when applying. | London Health Sciences Centre and St. Joseph's. Strong simulation labs. Also has a Fanshawe collaborative site with a lower cutoff. |\n| **Queen's** (Kingston) | **Competitive.** Small cohort, so offers often go to students in the low-to-mid 90s. | Queen's lists a **February 1** date for nursing. Confirm whether that is for a supplementary piece. Minimum 75% in ENG4U. | Kingston Health Sciences Centre. Small classes and strong faculty contact. Has rural and northern placement options. |\n| **Toronto Metropolitan (TMU)**, Daphne Cockwell School, collaborative with Centennial | **Reach at the TMU site.** TMU lists \"Low 90s\"; self-reported admitted median is about 94.5%. **Likely admit at the Centennial site** (mid-80s), which leads to the same TMU degree. | None beyond OUAC | She could live at home. Downtown Toronto teaching hospitals (Unity Health/St. Michael's, SickKids, UHN, Sunnybrook) and a very diverse urban patient mix. |\n| **University of Ottawa** (also a collaborative with Algonquin) | **Good match.** Usually mid-to-high 80s. | None beyond OUAC. A French-language stream is available too. | The Ottawa Hospital, CHEO (children's) and Montfort. Bilingual placements help her career. |\n| **York University** (Toronto) | **Likely admit.** Estimated competitive average about 88%. | None widely reported. Confirm at application time. | Close to home. Placements in GTA hospitals and community settings, with a strong community and global health focus. |\n| **Ontario Tech** (Oshawa), collaborative with Durham College | **Likely admit** | None beyond OUAC | Lakeridge Health network and modern simulation labs. Commutable from the east GTA. |\n| **Brock, Trent, Nipissing, Laurentian, Windsor, Lakehead** | **Likely admit / safety** | Varies | Smaller cohorts. Often more varied and rural/northern placements, and less competition for placement spots. Nipissing and Trent also have GTA-adjacent sites. |\n\n**A Toronto note:** the University of Toronto's Lawrence Bloomberg Faculty of Nursing does **not** admit students straight from high school. It is a 2-year accelerated BScN for people who already have university credits. It stays a backup route if she does an undergrad in another field first.\n\n## Options elsewhere in Canada\n\n| School | Notes | Deadline (confirm) |\n|---|---|---|\n| **McGill** (Montreal) | Ontario high school students can apply directly. Highly regarded and placements are in McGill's teaching hospitals. Clinical placements in Montreal can require working French. | **February 1, 2027** for Ontario applicants |\n| **Dalhousie** (Halifax) | Very competitive BScN. Minimum 70% in English, math, biology and chemistry, but actual admits are much higher. Placements at Nova Scotia Health / IWK. | Check Dal Undergraduate Admissions. Usually early in the new year. |\n| **University of Alberta** (Edmonton) | Large, strong program. **New for Fall 2027:** high school nursing applications are reviewed in **rounds**, and an offer must be accepted with a deposit within **30 days**. Applying early helps. | Older pages say March 1. Apply early because of the rounds. |\n| **Memorial** (St. John's) | Good value and a supportive program. It has a high school applicant stream. | Check MUN Nursing Admissions |\n| **UBC** | **Not** direct entry from high school; she would need prior university courses first. Not a fit for Fall 2027. | \u2014 |\n\n---\n\n## Key dates and a suggested timeline\n\n| When | What |\n|---|---|\n| **Now to November 2026** | Finalize a list of about 6 schools. Confirm her top-6 average with her guidance counsellor. Check whether she needs **Casper** (McMaster for sure) and book a test date early, because sittings fill up and results take weeks to reach schools. |\n| **November to December 2026** | Submit the OUAC 101 application. Early is better than last-minute. Start any supplementary applications and scholarship forms; some schools have early scholarship deadlines in December. |\n| **January 15, 2027** | **OUAC equal consideration deadline** for current Ontario high school students. |\n| **About February 1, 2027** | Typical deadline for supplementary forms and documents at several Ontario schools, including Queen's nursing. Also the **McGill** deadline for Ontario applicants. Most Casper results need to be in by around this time. |\n| **February to March 2027** | Out-of-province deadlines (Alberta round-based, Dalhousie, Memorial). Send midterm Grade 12 marks if a school asks for them. |\n| **February to May 2027** | Offers roll out. Most Ontario decisions arrive by late May. |\n| **June 1, 2027** | Usual Ontario date to accept an offer (confirm in OUAC). |\n| **Summer 2027** | After accepting, nursing programs need **clinical clearance** before placements: immunizations, a vulnerable-sector police check, CPR/BLS and mask fit testing. Start early. |\n\n## Our recommendation\n\nA balanced list for her could look like:\n\n- **Reach:** McMaster (with Casper), TMU (TMU site), Western, Queen's\n- **Match:** Ottawa, McGill\n- **Likely:** York, Ontario Tech, or TMU's Centennial site. These are close to home and still lead to a full BScN.\n\nIf clinical placements are her top priority, these questions are worth asking at fall open houses or virtual info sessions:\n\n1. In what year do hospital placements start?\n2. How many total clinical hours are there?\n3. Can students choose their final-year consolidation specialty and location, such as ICU, paediatrics or ER?\n4. What is the program's NCLEX-RN first-attempt pass rate?\n\n## Caveats\n\n- Admission averages change every year. The figures above combine official ranges (TMU, OUAC minimums) with crowdsourced data from Uniscope, which is self-reported. Use them as a rough guide only.\n- Deadlines were checked as of October 2026, and several 2027 dates come from prior-year patterns or third-party summaries. **Confirm every date on ouac.on.ca and each school's admissions page** before relying on it.\n\n## Sources\n\n- [OUAC 2027 deadlines summary (third-party)](https://www.uscaacademy.com/blog/ouac-105-deadlines/)\n- [McMaster Nursing on OUInfo](https://ouinfo.ca/programs/mn)\n- [McMaster \"Beyond the 92% Cut-Off\" case study](https://acuityinsights.com/case-study/beyond-the-92-cut-off-rethinking-nursing-admissions-at-mcmaster/)\n- [Queen's Nursing admission requirements](https://www.queensu.ca/academic-calendar/nursing/admission-requirements/)\n- [Queen's Nursing, prospective students](https://new.nursing.queensu.ca/undergraduate/prospective-students)\n- [Western nursing admission policy](https://www.uwo.ca/univsec/pdf/academic_policies/admission/nursing.pdf)\n- [Uniscope: Western Nursing](https://uniscope.ca/western-university/nursing/chances)\n- [TMU Nursing (Collaborative) program page](https://www.torontomu.ca/programs/undergraduate/nursing-collaborative/)\n- [Uniscope: TMU Nursing](https://uniscope.ca/toronto-metropolitan-university/nursing-at-tmu)\n- [Uniscope: York Nursing](https://uniscope.ca/york-university/nursing-direct-entry-bscn)\n- [McGill requirements for Ontario applicants](https://mcgill.ca/applying/requirements/on)\n- [Dalhousie BScN admission requirements](https://dal.ca/faculty/health/nursing/undergraduate-program/admission-requirements.html)\n- [University of Alberta Nursing application process](https://www.ualberta.ca/nursing/programs/undergraduate-admissions/application-process.html)\n- [Memorial Nursing: high school applicants](https://mun.ca/nursingadmissions/admission-information/high-school-applicants/)\n"}], "grading": {"expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach / Match / Likely lists in 'Our recommendation' (Likely \u2248 Safety)"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": false, "evidence": "Ontario table columns: Competitiveness|Extra requirements|Clinical strengths. No tuition or deadline columns"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with URLs"}, {"text": "Ends with concrete, numbered next steps", "passed": false, "evidence": "Timeline is an unnumbered table; the only numbered list is open-house questions; ends with Caveats and Sources"}, {"text": "Mentions the OUAC application system and a January deadline", "passed": true, "evidence": "OUAC equal consideration January 15, 2027"}, {"text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)", "passed": true, "evidence": "English 4U, Biology 4U, Chemistry 4U, 4U math"}, {"text": "Addresses clinical placement / co-op quality, as the parent asked", "passed": true, "evidence": "Placement strengths column plus questions to ask"}], "summary": {"passed": 5, "failed": 2, "total": 7, "pass_rate": 0.714}}}, {"id": "eval-3-compare-tum-uva-kth-with_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "response.md", "type": "text", "content": "# TU Munich vs University of Amsterdam vs KTH: MSc Mechanical Engineering (Indian applicant, 8.4 CGPA, GRE 318, \u20b912\u201314 lakh/yr)\n\n**Your profile:** Indian, BE/BTech (assumed in mechanical or a close field) from a tier-2 college, CGPA 8.4/10, GRE 318, no IELTS yet. Budget \u20b912\u201314 lakh a year for tuition plus living.\n**Assumptions:** You're aiming for the **2027 autumn intake**. The 2026 deadlines have already passed. You don't have much full-time work experience, and you'll need a loan or family money for anything above your budget. Exchange rates used: **\u20ac1 \u2248 \u20b9100, SEK 1 \u2248 \u20b99**. These are approximate, so recheck them before you plan.\n**Grade conversion (approximate):** 8.4/10 works out to about **German 1.8\u20132.0** on the modified Bavarian formula. The exact figure depends on the minimum passing grade the university uses for your college. In US terms that's roughly a **3.4\u20133.6 GPA**. That's a solid profile, but it's not a standout one for the most competitive programs.\n\n---\n\n## Short answer\n\n1. **The University of Amsterdam (UvA) is out.** UvA doesn't run an MSc in Mechanical Engineering. It's a general research university with no mechanical engineering faculty. In the Netherlands, mechanical engineering is taught at TU Delft, TU Eindhoven, the University of Twente and Groningen. Please confirm this on uva.nl, but I found no such program. The Dutch technical universities also charge non-EU students around \u20ac20\u201326k a year in tuition alone (TU Delft is about **\u20ac25.6k for 2026\u201327**). With living costs, that's roughly **\u20b935\u201340 lakh a year**, which is about three times your budget.\n2. **TU Munich is the best of your three, but it's over budget as things stand.** Since 2024 TUM charges non-EU master's students **\u20ac4,000\u20136,000 per semester**. Add Munich living costs and you get about **\u20b921\u201329 lakh a year**. It's realistic only if you (a) work as a student (*Werkstudent*) part-time, which is legal and common in Germany, (b) win a fee waiver or scholarship, or (c) accept a loan. For admission it's a **Reach**. TUM chooses students through a points-based aptitude assessment, and a tier-2 8.4 puts you in the competitive zone, not the safe one.\n3. **KTH is a good academic fit but the most out of reach on cost.** Tuition is about **SEK 342,000 for the full 2-year program** (about SEK 171k a year). Add Stockholm living costs and you get about **\u20b927\u201330 lakh a year**. It only works if you win the **KTH Scholarship**, which covers tuition and is highly competitive. Apply by **15 January 2027** and apply for the scholarship at the same time. Without it, KTH doesn't fit your budget.\n\n**My recommendation:** of your three, apply to **TUM**, and to **KTH only together with its scholarship**. Drop UvA. More importantly, add **tuition-free German technical universities and the Italian Politecnicos**. Those are the options that actually fit \u20b912\u201314 lakh a year, and some of them are just as good or better for mechanical engineering.\n\n---\n\n## Shortlist\n\n### \ud83c\udfaf Reach\n- **Technical University of Munich (TUM)** (Germany): M.Sc. Mechanical Engineering, Garching campus. It's one of Europe's top mechanical engineering schools, with very strong links to the automotive and aerospace industry in Bavaria. The main hurdles are the aptitude assessment (your bachelor's coursework has to cover their core subjects: higher maths, technical mechanics, machine elements, materials, thermodynamics) and the cost of about \u20b921\u201329 lakh a year. Check which tracks can be completed fully in English. TUM's page lists \"English or German\" proficiency, but some electives are taught in German.\n- **KTH Royal Institute of Technology** (Sweden): MSc Machine Design / Engineering Design. It's a strong program with good industry projects. Your grades are around the competitive range, so admission is plausible. The **budget is the reach**, because it only fits with the KTH Scholarship.\n\n### \u2705 Match\n- **RWTH Aachen** (Germany): English-taught mechanical engineering master's programs (for example Automotive Engineering, or Computer Aided Conception and Production in Mechanical Engineering). RWTH matches TUM's reputation in mechanical engineering. Most programs charge **no tuition, only a semester fee of about \u20ac300**, so the total is about **\u20b912\u201314 lakh a year**, which fits your budget. Some \"international\" programs do charge fees, so check each program.\n- **Hamburg University of Technology (TUHH)** (Germany): MSc Mechanical Engineering & Management, or MSc Mechatronics (English). No tuition, a semester fee of about \u20ac350, and a good industry base around Hamburg (Airbus, shipping). Total is about **\u20b912\u201314 lakh a year**.\n- **Politecnico di Milano** (Italy): MSc Mechanical Engineering (English). It's ranked in the top tier in Europe for mechanical engineering. Non-EU tuition depends on family income, with a maximum of about \u20ac3,900 a year. The **DSU regional scholarship** can waive fees and pay a living stipend. Total is about **\u20b913\u201316 lakh a year** without the scholarship and well under budget with it. Applications run in rounds from about Nov to Mar, so check the dates.\n\n### \ud83d\udedf Safety\n- **Politecnico di Torino** (Italy): MSc Mechanical Engineering / Automotive Engineering (English). Its admission bar is lower than Milan's, Turin is cheaper to live in, and it offers income-based fees plus the EDISU regional scholarship. Total is about **\u20b911\u201314 lakh a year**.\n- **A less-crowded German public university**, such as TU Chemnitz or Otto von Guericke University Magdeburg: these have English-taught mechanical, automotive and manufacturing master's programs with no tuition, and living costs are lower than in Munich (about \u20b911\u201312 lakh a year). Check each program's language and curriculum fit. I haven't verified individual programs here.\n\n> There's no honest \"safety\" among your original three. TUM is selective, KTH depends on a scholarship, and UvA doesn't offer the degree.\n\n---\n\n## Comparison\n\n| University | Country | Program | Est. annual tuition | Est. annual living | Est. total / yr (\u20b9) | Key requirements | Deadline (2027 intake) | Scholarships |\n|---|---|---|---|---|---|---|---|---|\n| **TU Munich** | Germany | M.Sc. Mechanical Engineering | \u20ac8,000\u201312,000 (\u20ac4k or \u20ac6k per semester, set per program; check TUM's fee list) + semester fee ~\u20ac100\u2013150 | \u20ac13,000\u201317,000 (Munich is expensive) | **\u20b921\u201329 lakh** \u274c over budget | Aptitude assessment (points for grades and documents, then admit, reject or interview/test); core mechanical engineering coursework; IELTS ~6.5 (check); APS certificate; GRE not listed officially | **1 Apr \u2013 31 May 2027** (winter semester) | TUM fee exemptions/waivers (narrow windows), Deutschlandstipendium (\u20ac300/month), part-time student jobs |\n| **University of Amsterdam** | Netherlands | \u2014 **no mechanical engineering MSc** | \u2014 | \u20ac14,000\u201316,000 | \u2014 | \u2014 | \u2014 | \u2014 |\n| *(Dutch alternative: TU Delft)* | Netherlands | MSc Mechanical Engineering | ~\u20ac25,600 (2026\u201327) | \u20ac14,000\u201316,000 | **\u20b938\u201342 lakh** \u274c | Strong grades, IELTS 6.5+ | check website (early, around Dec\u2013Jan) | Justus & Louise van Effen (full tuition + living; very competitive) |\n| **KTH** | Sweden | MSc Machine Design / Engineering Design | ~SEK 171,000 (SEK 342k total) | ~SEK 120,000\u2013150,000 | **\u20b927\u201330 lakh** \u274c unless scholarship | Relevant bachelor's, IELTS 6.5 (check sub-scores), SOP; no GRE | **15 Jan 2027** (application opens 16 Oct 2026); documents by ~1 Feb; results 1 Apr | KTH Scholarship (tuition); Swedish Institute SISGP (needs work/leadership experience; check whether India is on the eligible-country list) |\n| **RWTH Aachen** | Germany | English mechanical engineering MSc programs | ~\u20ac0 + semester fee ~\u20ac600/yr (some international programs charge fees; check) | \u20ac11,000\u201313,000 | **\u20b912\u201314 lakh** \u2705 | Matching coursework, IELTS 6.5 (check), APS, GRE sometimes recommended | check website (often 1 Mar for non-EU) | Deutschlandstipendium, student jobs |\n| **TU Hamburg** | Germany | MSc Mech. Eng. & Management / Mechatronics | ~\u20ac0 + semester fee ~\u20ac700/yr | \u20ac11,000\u201313,000 | **\u20b912\u201314 lakh** \u2705 | Matching coursework, IELTS, APS | check website | Deutschlandstipendium |\n| **Politecnico di Milano** | Italy | MSc Mechanical Engineering | Up to ~\u20ac3,900 (income-based) | \u20ac11,000\u201313,000 | **\u20b913\u201316 lakh** \u2705 (lower with DSU) | Merit review, IELTS 6.0\u20136.5 (check), GRE can help | rounds from ~Nov 2026 to Mar 2027; check website | DSU Lombardia (fee waiver + stipend), PoliMi merit awards |\n| **Politecnico di Torino** | Italy | MSc Mechanical / Automotive Eng. | Income-based (low) | \u20ac9,000\u201311,000 | **\u20b911\u201314 lakh** \u2705 | Merit review, English test | check website | EDISU Piemonte regional scholarship |\n\nAll costs are in local currency with an approximate rupee conversion (\u20ac1 \u2248 \u20b9100, SEK 1 \u2248 \u20b99). Living estimates include rent, food, insurance and transport. For a German visa you'll need a **blocked account of about \u20ac11,900 a year** (verify the current amount).\n\n---\n\n## Funding options\n- **KTH Scholarship**: covers tuition for selected students admitted to KTH master's programs. You apply separately; the window is expected around Dec 2026 to 15 Jan 2027 (verify). Without it, drop KTH.\n- **Working as a student in Germany (*Werkstudent*)**: non-EU students can legally work 140 full days or 280 half days a year. Many mechanical engineering students earn \u20ac800\u20131,200 a month at companies near TUM or RWTH. This is the most realistic way to make TUM affordable, but you can't count it toward the blocked-account requirement.\n- **Italian regional scholarships (DSU Lombardia / EDISU Piemonte)**: based on family income, and you need an ISEE-equivalent income certificate from India. They can mean free tuition, a stipend and sometimes housing. This is the strongest route to studying almost free.\n- **Deutschlandstipendium**: \u20ac300 a month, merit-based, offered by most German universities after you enrol.\n- **Erasmus Mundus Joint Master's**: fully funded (tuition plus about \u20ac1,400 a month). Search the EMJM catalogue for mechanical engineering, materials, robotics or energy programs. Most deadlines are Dec\u2013Feb.\n- *(DAAD EPOS and the Swedish Institute's SISGP usually require 2+ years or 3,000+ hours of work experience. They're probably not an option for you now unless you have that experience.)*\n\n---\n\n## Next steps\n1. **This week: book IELTS Academic** for a date in **November 2026**, targeting **7.0 overall with no band below 6.5**. That clears every program here and leaves time for one retake before KTH's 15 Jan deadline.\n2. **Now: apply for your APS certificate (APS India).** It's required for German universities and the student visa, and it can take 1\u20133 months. You need it before TUM opens in April 2027 and before RWTH and TUHH deadlines.\n3. **By 15 Nov 2026: check your coursework against each program.** Map your transcript to TUM's required core subjects (higher maths, technical mechanics, machine elements, materials science, thermodynamics). German universities admit or reject partly on this, more than on GRE.\n4. **16 Oct 2026 \u2013 15 Jan 2027: apply to KTH on universityadmissions.se** (SEK 900 fee) **and** apply for the KTH Scholarship. Upload documents by about 1 Feb. Results come out 1 Apr 2027. Only enrol if you get the scholarship.\n5. **Nov 2026 \u2013 Mar 2027: apply to Politecnico di Milano and Torino** in their early rounds, then apply for DSU/EDISU as soon as you're admitted. Prepare your family-income documents early.\n6. **1 Apr \u2013 31 May 2027: apply to TUM** (M.Sc. Mechanical Engineering, through TUMonline), and in the same spring window to **RWTH Aachen and TU Hamburg** (check each deadline; some are earlier than TUM's).\n7. **Documents to start now:** an SOP tailored to each program (name the specialisation, for example automotive, robotics or thermo-fluids, and the professors or labs you'd like to work with), 2 recommendation letters from professors, a CV listing projects and internships, and your transcripts plus degree certificate (provisional is fine).\n8. **About GRE 318:** TUM and KTH don't officially ask for it. Include it where it's optional, especially if your Quant score is 165 or higher, because it helps balance the tier-2 college. Don't spend more time retaking it.\n\n---\n\n## Sources\n- TUM: M.Sc. Mechanical Engineering program page (application windows 1 Apr\u201331 May / 1 Oct\u201330 Nov; aptitude assessment; language \"English or German\"): https://www.tum.de/en/studies/degree-programs/detail/mechanical-engineering-master-of-science-msc and https://www.ed.tum.de/en/ed/studies/degree-programs/mechanical-engineering-m-sc\n- TUM: Tuition fees for non-EU students (master's \u20ac4,000 or \u20ac6,000 per semester, set per program): https://tum.de/en/studies/fees/tuition\n- GradGermany: TUM tuition fees 2026 (secondary): https://www.gradgermany.com/blog/tum-tuition-fees-2026-for-international-students\n- KTH: Engineering Design fees (SEK 342,000 full program; SEK 900 application fee): https://www.kth.se/en/studies/2.23106/master/engineering-design/fees-engineering-design-1.910338\n- KTH: Machine Design (2027 intake: opens 16 Oct 2026, deadline 15 Jan, results 1 Apr): https://www.kth.se/en/studies/master/machine-design\n- KTH: Fees and scholarships: https://www.kth.se/en/studies/master/test/fees-and-scholarships\n- TU Delft MSc Mechanical Engineering fees (secondary, 2026\u201327 non-EU ~\u20ac25,633): https://collegedunia.com/netherlands/article/c-747-tu-delft-increases-fees-for-non-eu-students-in-2026-what-it-means-for-indian-applicants\n- VU Amsterdam / Twente mechanical engineering (shows mechanical engineering in Amsterdam runs through VU and Twente, not UvA): https://vu.nl/en/education/bachelor/mechanical-engineering\n- TU/e MSc Mechanical Engineering: https://www.tue.nl/en/education/graduate-school/master-mechanical-engineering/\n- RWTH, TUHH, Politecnico di Milano/Torino, DSU/EDISU, blocked-account amount, Italian and Erasmus Mundus details: based on general knowledge as of 2025\u201326. **Check them on the official websites** before applying, because I couldn't access their pages directly.\n"}], "grading": {"expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "\ud83c\udfaf Reach / \u2705 Match / \ud83d\udedf Safety"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": true, "evidence": "Table includes tuition, living, total \u20b9, requirements, deadline, scholarships"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with URLs; general-knowledge items flagged to verify"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## Next steps' numbered 1-8"}, {"text": "Compares all three named universities (TUM, UvA, KTH) directly", "passed": true, "evidence": "'Short answer' covers UvA, TUM and KTH one by one"}, {"text": "Converts costs to INR", "passed": true, "evidence": "Total per year in \u20b9 lakh in the table and the text"}, {"text": "Flags that the student must take IELTS/TOEFL before applying", "passed": true, "evidence": "'This week: book IELTS Academic' for Nov 2026, target 7.0"}, {"text": "Notes that TUM now charges tuition to non-EU students", "passed": true, "evidence": "'Since 2024 TUM charges non-EU master's students \u20ac4,000\u20136,000 per semester'"}, {"text": "Gives a clear final recommendation", "passed": true, "evidence": "'My recommendation: apply to TUM, and to KTH only with its scholarship. Drop UvA'"}, {"text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead", "passed": true, "evidence": "'UvA doesn't run an MSc in Mechanical Engineering'; suggests TU Delft, TU/e, Twente"}], "summary": {"passed": 10, "failed": 0, "total": 10, "pass_rate": 1.0}}}, {"id": "eval-3-compare-tum-uva-kth-without_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "response.md", "type": "text", "content": "# TU Munich vs University of Amsterdam vs KTH: MS in Mechanical Engineering\n\n**Short answer:** Of the three, **TU Munich is the best choice**. But two things change the picture:\n\n1. **The University of Amsterdam (UvA) doesn't offer a master's in mechanical engineering.** UvA is a general research university with no mechanical engineering faculty. In the Netherlands, the ME master's degrees are at **TU Delft, TU Eindhoven and the University of Twente**. Take UvA off your list. If you want the Netherlands, compare against those three instead.\n2. **At about \u20b912\u201314 lakh a year, none of these options is fully affordable without a scholarship, a fee waiver or part-time work.** TUM comes closest. Also look at **tuition-free German universities** like RWTH Aachen, TU Dresden, TU Berlin, TU Darmstadt, TU Braunschweig and Leibniz Uni Hannover. They fit your budget almost exactly and have strong ME departments.\n\n---\n\n## 1. Your profile\n\n| Item | What it means |\n|---|---|\n| 8.4 CGPA, tier-2 college | That's a solid score. Converted with the modified Bavarian formula, it comes to roughly **1.8\u20132.0 on the German scale**, which is competitive for TUM and most TU9 universities. KTH weighs your university's reputation more heavily, so a tier-2 college hurts you more there. |\n| GRE 318 | Fine, but **none of these three schools requires the GRE for ME.** TUM may give a small bonus in its aptitude assessment for some programmes. Don't spend time retaking it. |\n| No IELTS yet | **This is your most urgent gap.** All of these schools need IELTS 6.5 or more (KTH: 6.5 with no band below 5.5. TUM: 6.5 or the TOEFL equivalent). Aim for 7.0 to be safe and book the test now. |\n| Indian applicant to Germany | You need an **APS certificate** (Akademische Pr\u00fcfstelle, India) before you apply to any German university. It costs about \u20b918,000 and can take 4\u20138 weeks or more. **Start this immediately.** |\n\n---\n\n## 2. Comparison table\n\nExchange rates are approximate (\u20ac1 \u2248 \u20b9100\u2013105, SEK 1 \u2248 \u20b99) and change over time. Fees are for non-EU students. Check the official programme pages before you budget.\n\n| | **TU Munich** | **KTH Stockholm** | **UvA** (\u2192 TU Delft as the Dutch alternative) |\n|---|---|---|---|\n| ME master's available? | Yes: M.Sc. Mechanical Engineering, plus related English-taught options (Mechatronics & Robotics, Aerospace, Power Engineering, Automotive) | No single \"ME\" degree, but closely related programmes: Engineering Mechanics, Engineering Design, Vehicle Engineering, Aerospace, Sustainable Energy Engineering | **UvA: no.** TU Delft / TU/e / Twente: yes |\n| Reputation in ME | Excellent. One of the top ME schools in Europe, with deep ties to industry (BMW, Siemens, Airbus, MAN) | Very good. Top Nordic technical university, strong in vehicles, energy and design | TU Delft: excellent, comparable to TUM |\n| Tuition per year | About **\u20ac8,000\u201312,000** (non-EU fees of \u20ac4,000\u20136,000 per semester, introduced recently; check the exact ME fee) plus a semester fee of about \u20ac97\u2013160 per semester | About **SEK 155,000\u2013180,000** (\u2248 \u20b914\u201316 L) | TU Delft: about **\u20ac22,000\u201325,000** (\u2248 \u20b923\u201326 L) |\n| Living costs per year | Munich is expensive: \u20ac13,000\u201315,000 (\u2248 \u20b913\u201315 L). The blocked account requirement is about \u20ac11,900 per year | Stockholm: SEK 120,000\u2013140,000 (\u2248 \u20b911\u201312.5 L) | Delft: \u20ac13,000\u201315,000 (\u2248 \u20b913\u201315 L) |\n| **Total per year (approx.)** | **\u20b922\u201328 L** | **\u20b926\u201329 L** | **\u20b936\u201341 L** |\n| Within \u20b912\u201314 L? | No. About \u20b98\u201314 L short per year. Part-time work and fee waivers can cover much of the gap | No, unless you win the KTH Scholarship (full tuition), which is very competitive | Far over budget |\n| Part-time work rules | 140 full days (or 280 half days) per year. Minimum wage about \u20ac13.90 an hour. A working-student job (Werkstudent) in engineering can pay \u20ac15\u201320 an hour | No fixed cap on hours, but Swedish-language jobs are scarce and English-only part-time work is limited | Restricted to 16 hours a week during term, and the employer needs a permit |\n| Admission chances for you | **Moderate to good.** Decided by aptitude assessment: your converted grade, how well your coursework matches the ME curriculum, and your motivation letter | **Moderate, borderline.** Ranks applicants by grades plus university reputation. Tier-2 colleges are at a disadvantage | TU Delft: moderate. Often requires a minimum CGPA of about 75\u201380% |\n| Language for jobs | **German (B1\u2013B2) is effectively required** for most ME jobs, even though you can study in English | Swedish helps a lot. The ME job market is small | Dutch helps. English works more often than in Germany |\n| Post-study stay | 18-month job-seeker permit, then an EU Blue Card. Germany has the **largest ME job market in Europe** | 12-month job-search permit | 1-year orientation year (zoekjaar), then the Highly Skilled Migrant route |\n\n---\n\n## 3. Recommendation\n\n### Pick TU Munich over KTH, for these reasons\n\n- **ROI:** Germany's automotive, aerospace and machinery industries make it the best place in Europe to start an ME career. Munich and Bavaria sit at the centre of that.\n- **Cost:** It costs about \u20b93\u20135 L less per year than KTH, and German working-student jobs can realistically bring in \u20b96\u201310 L per year once you settle in.\n- **Fit:** Your 8.4 CGPA converts to a grade that matters directly in TUM's assessment. KTH's preference for well-known universities works against a tier-2 college.\n\n**Caveat:** Before you apply, check how many TUM ME core modules are taught only in German. Some electives are. The English-taught alternatives (M.Sc. Mechatronics & Robotics, Aerospace) avoid this problem.\n\n### Strongly consider tuition-free German universities (they fit your budget)\n\nPublic universities outside Bavaria and Baden-W\u00fcrttemberg still charge **no tuition**, only a semester fee of about \u20ac300\u2013350. Your yearly cost is then mostly living expenses: about **\u20ac11,000\u201312,000 \u2248 \u20b911.5\u201313 L**, which is **inside your budget**.\n\n| University | Programme to look at | Notes |\n|---|---|---|\n| RWTH Aachen | M.Sc. Mechanical Engineering, Automotive Engineering, Production Systems Engineering | On par with TUM for ME. Very competitive |\n| TU Dresden | M.Sc. Mechanical Engineering (some taught in German), Advanced Computational & Civil Eng. | Lower cost of living |\n| TU Darmstadt | M.Sc. Mechanical & Process Engineering | Strong industry links |\n| TU Berlin | M.Sc. Production Systems, Automotive Systems | Berlin startup scene |\n| TU Hamburg (TUHH) | M.Sc. Mechatronics, Aircraft Systems Engineering, Product Development | Airbus is nearby |\n\n(Stuttgart and KIT in Baden-W\u00fcrttemberg charge about \u20ac1,500 per semester, which is still much cheaper than TUM.)\n\n### A suggested shortlist (apply to 5\u20137 schools)\n- **Reach:** TU Munich, RWTH Aachen, (KTH if you're applying for the KTH Scholarship)\n- **Target:** TU Darmstadt, TU Dresden, TU Hamburg, University of Stuttgart\n- **Safer:** TU Braunschweig, Leibniz Uni Hannover, TU Chemnitz, Otto-von-Guericke Magdeburg\n\n---\n\n## 4. Next steps and deadlines (for the Winter 2027 intake)\n\n1. **Now (Oct\u2013Nov 2026):** Apply for the **APS certificate**. Book **IELTS**, aiming for 7.0.\n2. **Start learning German now** (Goethe A1 \u2192 A2 by arrival). This matters a lot for part-time jobs and full-time ME jobs in Germany.\n3. **KTH:** Applications on universityadmissions.se usually open mid-October and close **mid-January**. The KTH Scholarship has the same deadline and needs the SEK 900 application fee paid.\n4. **TUM:** The winter-semester application window usually runs **about Dec/Jan to 31 May** (check the programme page). Prepare a curriculum/module description, a CV and a strong motivation letter (TUM scores it).\n5. **Other German universities:** Most winter deadlines fall between 15 Jan and 15 July (some go through uni-assist). RWTH ME is usually 1 March for non-EU applicants.\n6. **Finances:** Plan for a blocked account of about \u20ac11,900 (it will cover your living costs). Look into TUM fee waivers, the **DAAD** scholarships (most need work experience), **Deutschlandstipendium** (\u20ac300 a month, applied for after admission) and education loans from Indian banks or NBFCs for the remaining gap.\n\n---\n\n## Bottom line\n\n- **TU Munich vs KTH:** Choose TUM. It has the better ME reputation, stronger industry access, lower total cost and better odds for your profile.\n- **UvA:** It doesn't offer ME. Look at TU Delft, TU/e or Twente instead, but they cost far more than your budget.\n- **To stay within \u20b912\u201314 L,** add tuition-free German universities (RWTH Aachen, TU Darmstadt, TU Dresden, TUHH) next to TUM. Germany fits your budget and career goals best.\n\n*Figures are approximate as of late 2026. Fees and visa rules change often, so check the official university and embassy pages before you make decisions.*\n\n### Sources\n- [TUM tuition guide (gradgermany)](https://www.gradgermany.com/blog/tum-tuition-fees-2026-for-international-students)\n- [TUM tuition for international students (msingermany)](https://msingermany.com/blog/tum-tuition-fees-international-students-guide)\n- [KTH programme fees example (kth.se)](https://www.kth.se/en/studies/master/technology-based-entrepreneurship/fees-for-technology-based-entrepreneurship-1.1180746)\n- [KTH international students guide](https://college-council.com/en/blog/kth-royal-institute-of-technology-international-students-guide)\n- [VU Amsterdam / Twente Mechanical Engineering (shows ME in Amsterdam is VU/UT, not UvA)](https://vu.nl/en/education/bachelor/mechanical-engineering)\n"}], "grading": {"expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach / Target / Safer shortlist"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": false, "evidence": "The comparison table has tuition, living and requirement rows but no deadline row"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with 5 URLs"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## 4. Next steps' numbered 1-6, followed by a short bottom line"}, {"text": "Compares all three named universities (TUM, UvA, KTH) directly", "passed": true, "evidence": "Table columns TUM | KTH | UvA\u2192TU Delft"}, {"text": "Converts costs to INR", "passed": true, "evidence": "\u20b9 totals per year"}, {"text": "Flags that the student must take IELTS/TOEFL before applying", "passed": true, "evidence": "'Book IELTS, aiming for 7.0'"}, {"text": "Notes that TUM now charges tuition to non-EU students", "passed": true, "evidence": "'non-EU fees of \u20ac4,000\u20136,000 per semester, introduced recently'"}, {"text": "Gives a clear final recommendation", "passed": true, "evidence": "'Choose TUM'"}, {"text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead", "passed": true, "evidence": "'UvA: no' ME master's; suggests TU Delft / TU/e / Twente"}], "summary": {"passed": 9, "failed": 1, "total": 10, "pass_rate": 0.9}}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "university-finder", "skill_path": "<path/to/skill>", "executor_model": "<model-name>", "analyzer_model": "<model-name>", "timestamp": "2026-10-10T09:06:17Z", "evals_run": [1, 2, 3], "runs_per_configuration": 3, "model": "session model"}, "runs": [{"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 7, "failed": 0, "total": 7, "time_seconds": 158.0, "tokens": 87904, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach/Match/Safety headings with 4/6/1 entries"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": true, "evidence": "Table: University|Country|Program|Est. annual tuition|Living|Key requirements|Deadline|Scholarships"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with ~20 URLs plus an 'approximate, verify' note"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## Next steps' numbered 1-8 with dates"}, {"text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship", "passed": true, "evidence": "Each option is costed against $15k; Erasmus Mundus, T\u00fcrkiye Burslari and GKS labelled fully funded; Saarland flagged as needing an IELTS retake"}, {"text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)", "passed": true, "evidence": "Stipendium Hungaricum, T\u00fcrkiye Burslari, Erasmus Mundus, GKS, DSU, Padua Excellence"}, {"text": "Does not recommend Norway as a free-tuition option", "passed": true, "evidence": "Norway not mentioned"}], "notes": []}, {"eval_id": 2, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 7, "failed": 0, "total": 7, "time_seconds": 150.2, "tokens": 85973, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach/Match/Safety headings plus an 'Outside Ontario' section"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": true, "evidence": "Table: tuition, living, key requirements, deadline, funding"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with URLs"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## Next steps' numbered 1-9 with dates"}, {"text": "Mentions the OUAC application system and a January deadline", "passed": true, "evidence": "OUAC by January 15, 2027"}, {"text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)", "passed": true, "evidence": "ENG4U, SBI4U, SCH4U, 12U math"}, {"text": "Addresses clinical placement / co-op quality, as the parent asked", "passed": true, "evidence": "'First, about co-op in nursing' section; compares placement hospitals"}], "notes": []}, {"eval_id": 3, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 10, "failed": 0, "total": 10, "time_seconds": 162.1, "tokens": 78557, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "\ud83c\udfaf Reach / \u2705 Match / \ud83d\udedf Safety"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": true, "evidence": "Table includes tuition, living, total \u20b9, requirements, deadline, scholarships"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with URLs; general-knowledge items flagged to verify"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## Next steps' numbered 1-8"}, {"text": "Compares all three named universities (TUM, UvA, KTH) directly", "passed": true, "evidence": "'Short answer' covers UvA, TUM and KTH one by one"}, {"text": "Converts costs to INR", "passed": true, "evidence": "Total per year in \u20b9 lakh in the table and the text"}, {"text": "Flags that the student must take IELTS/TOEFL before applying", "passed": true, "evidence": "'This week: book IELTS Academic' for Nov 2026, target 7.0"}, {"text": "Notes that TUM now charges tuition to non-EU students", "passed": true, "evidence": "'Since 2024 TUM charges non-EU master's students \u20ac4,000\u20136,000 per semester'"}, {"text": "Gives a clear final recommendation", "passed": true, "evidence": "'My recommendation: apply to TUM, and to KTH only with its scholarship. Drop UvA'"}, {"text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead", "passed": true, "evidence": "'UvA doesn't run an MSc in Mechanical Engineering'; suggests TU Delft, TU/e, Twente"}], "notes": []}, {"eval_id": 1, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.571, "passed": 4, "failed": 3, "total": 7, "time_seconds": 124.0, "tokens": 66196, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": false, "evidence": "Uses Tier 1/2/3 by country; only Malaysia is called a 'safety'. No Reach/Match/Safety classification per university"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": false, "evidence": "Tables have only University|Program|Notes columns: no tuition, requirements or deadline columns"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "'Sources (for key figures checked)' with 7 URLs, plus a note to verify"}, {"text": "Ends with concrete, numbered next steps", "passed": false, "evidence": "Timeline is a table (not numbered) in the middle; the answer ends with general tips"}, {"text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship", "passed": true, "evidence": "Mannheim's \u20ac1,500/semester and TUM flagged as over budget; the rest are in budget-friendly countries"}, {"text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)", "passed": true, "evidence": "Stipendium Hungaricum, CSC, GKS, T\u00fcrkiye Burslari, Erasmus Mundus"}, {"text": "Does not recommend Norway as a free-tuition option", "passed": true, "evidence": "Norway not recommended"}], "notes": []}, {"eval_id": 2, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.714, "passed": 5, "failed": 2, "total": 7, "time_seconds": 86.3, "tokens": 66806, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach / Match / Likely lists in 'Our recommendation' (Likely \u2248 Safety)"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": false, "evidence": "Ontario table columns: Competitiveness|Extra requirements|Clinical strengths. No tuition or deadline columns"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with URLs"}, {"text": "Ends with concrete, numbered next steps", "passed": false, "evidence": "Timeline is an unnumbered table; the only numbered list is open-house questions; ends with Caveats and Sources"}, {"text": "Mentions the OUAC application system and a January deadline", "passed": true, "evidence": "OUAC equal consideration January 15, 2027"}, {"text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)", "passed": true, "evidence": "English 4U, Biology 4U, Chemistry 4U, 4U math"}, {"text": "Addresses clinical placement / co-op quality, as the parent asked", "passed": true, "evidence": "Placement strengths column plus questions to ask"}], "notes": []}, {"eval_id": 3, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.9, "passed": 9, "failed": 1, "total": 10, "time_seconds": 90.4, "tokens": 59837, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Groups universities into Reach, Match and Safety categories", "passed": true, "evidence": "Reach / Target / Safer shortlist"}, {"text": "Includes a comparison table with tuition, requirements and deadline columns", "passed": false, "evidence": "The comparison table has tuition, living and requirement rows but no deadline row"}, {"text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified", "passed": true, "evidence": "Sources section with 5 URLs"}, {"text": "Ends with concrete, numbered next steps", "passed": true, "evidence": "'## 4. Next steps' numbered 1-6, followed by a short bottom line"}, {"text": "Compares all three named universities (TUM, UvA, KTH) directly", "passed": true, "evidence": "Table columns TUM | KTH | UvA\u2192TU Delft"}, {"text": "Converts costs to INR", "passed": true, "evidence": "\u20b9 totals per year"}, {"text": "Flags that the student must take IELTS/TOEFL before applying", "passed": true, "evidence": "'Book IELTS, aiming for 7.0'"}, {"text": "Notes that TUM now charges tuition to non-EU students", "passed": true, "evidence": "'non-EU fees of \u20ac4,000\u20136,000 per semester, introduced recently'"}, {"text": "Gives a clear final recommendation", "passed": true, "evidence": "'Choose TUM'"}, {"text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead", "passed": true, "evidence": "'UvA: no' ME master's; suggests TU Delft / TU/e / Twente"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 156.7667, "stddev": 6.0451, "min": 150.2, "max": 162.1}, "tokens": {"mean": 84144.6667, "stddev": 4934.4406, "min": 78557, "max": 87904}}, "without_skill": {"pass_rate": {"mean": 0.7283, "stddev": 0.165, "min": 0.571, "max": 0.9}, "time_seconds": {"mean": 100.2333, "stddev": 20.6844, "min": 86.3, "max": 124.0}, "tokens": {"mean": 64279.6667, "stddev": 3859.5324, "min": 59837, "max": 66806}}, "delta": {"pass_rate": "+0.27", "time_seconds": "+56.5", "tokens": "+19865"}}, "notes": ["Only 1 run per config per eval (labelled 3 by the script). Treat stddev as variation across evals, not run-to-run noise.", "Non-discriminating: Sources, scholarships, Norway, OUAC/prereqs, UvA-has-no-ME, TUM tuition, INR and IELTS all passed without the skill too. The baseline model already knows this domain well.", "The skill's gain is entirely structural: a full comparison table (tuition + requirements + deadline) and numbered next steps. The baseline missed these in 2 of 3 and 3 of 3 evals respectively.", "Cost: the skill took about 57s longer (+56%) and about 20k more tokens (+31%) per run. Its agents did more web searches (19-27 tool calls vs 7-15), driven by the 'verify fees and deadlines' instruction.", "Not graded but noticed: the Pakistan baseline claimed Pakistanis don't need Germany's APS certificate, which is unverified. The with-skill Pakistan answer called the student 'he' in the subagent summary, but the answer itself uses 'you'."]}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

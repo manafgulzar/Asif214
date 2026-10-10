@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Groups universities into Reach, Match and Safety categories",
+      "passed": true,
+      "evidence": "Reach / Match / Likely lists in 'Our recommendation' (Likely \u2248 Safety)"
+    },
+    {
+      "text": "Includes a comparison table with tuition, requirements and deadline columns",
+      "passed": false,
+      "evidence": "Ontario table columns: Competitiveness|Extra requirements|Clinical strengths. No tuition or deadline columns"
+    },
+    {
+      "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+      "passed": true,
+      "evidence": "Sources section with URLs"
+    },
+    {
+      "text": "Ends with concrete, numbered next steps",
+      "passed": false,
+      "evidence": "Timeline is an unnumbered table; the only numbered list is open-house questions; ends with Caveats and Sources"
+    },
+    {
+      "text": "Mentions the OUAC application system and a January deadline",
+      "passed": true,
+      "evidence": "OUAC equal consideration January 15, 2027"
+    },
+    {
+      "text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)",
+      "passed": true,
+      "evidence": "English 4U, Biology 4U, Chemistry 4U, 4U math"
+    },
+    {
+      "text": "Addresses clinical placement / co-op quality, as the parent asked",
+      "passed": true,
+      "evidence": "Placement strengths column plus questions to ask"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 2,
+    "total": 7,
+    "pass_rate": 0.714
+  }
+}

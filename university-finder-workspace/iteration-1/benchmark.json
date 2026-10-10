@@ -1,0 +1,420 @@
+{
+  "metadata": {
+    "skill_name": "university-finder",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-10-10T09:06:17Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3,
+    "model": "session model"
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 158.0,
+        "tokens": 87904,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Groups universities into Reach, Match and Safety categories",
+          "passed": true,
+          "evidence": "Reach/Match/Safety headings with 4/6/1 entries"
+        },
+        {
+          "text": "Includes a comparison table with tuition, requirements and deadline columns",
+          "passed": true,
+          "evidence": "Table: University|Country|Program|Est. annual tuition|Living|Key requirements|Deadline|Scholarships"
+        },
+        {
+          "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+          "passed": true,
+          "evidence": "Sources section with ~20 URLs plus an 'approximate, verify' note"
+        },
+        {
+          "text": "Ends with concrete, numbered next steps",
+          "passed": true,
+          "evidence": "'## Next steps' numbered 1-8 with dates"
+        },
+        {
+          "text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship",
+          "passed": true,
+          "evidence": "Each option is costed against $15k; Erasmus Mundus, T\u00fcrkiye Burslari and GKS labelled fully funded; Saarland flagged as needing an IELTS retake"
+        },
+        {
+          "text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)",
+          "passed": true,
+          "evidence": "Stipendium Hungaricum, T\u00fcrkiye Burslari, Erasmus Mundus, GKS, DSU, Padua Excellence"
+        },
+        {
+          "text": "Does not recommend Norway as a free-tuition option",
+          "passed": true,
+          "evidence": "Norway not mentioned"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 150.2,
+        "tokens": 85973,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Groups universities into Reach, Match and Safety categories",
+          "passed": true,
+          "evidence": "Reach/Match/Safety headings plus an 'Outside Ontario' section"
+        },
+        {
+          "text": "Includes a comparison table with tuition, requirements and deadline columns",
+          "passed": true,
+          "evidence": "Table: tuition, living, key requirements, deadline, funding"
+        },
+        {
+          "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+          "passed": true,
+          "evidence": "Sources section with URLs"
+        },
+        {
+          "text": "Ends with concrete, numbered next steps",
+          "passed": true,
+          "evidence": "'## Next steps' numbered 1-9 with dates"
+        },
+        {
+          "text": "Mentions the OUAC application system and a January deadline",
+          "passed": true,
+          "evidence": "OUAC by January 15, 2027"
+        },
+        {
+          "text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)",
+          "passed": true,
+          "evidence": "ENG4U, SBI4U, SCH4U, 12U math"
+        },
+        {
+          "text": "Addresses clinical placement / co-op quality, as the parent asked",
+          "passed": true,
+          "evidence": "'First, about co-op in nursing' section; compares placement hospitals"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 162.1,
+        "tokens": 78557,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Groups universities into Reach, Match and Safety categories",
+          "passed": true,
+          "evidence": "\ud83c\udfaf Reach / \u2705 Match / \ud83d\udedf Safety"
+        },
+        {
+          "text": "Includes a comparison table with tuition, requirements and deadline columns",
+          "passed": true,
+          "evidence": "Table includes tuition, living, total \u20b9, requirements, deadline, scholarships"
+        },
+        {
+          "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+          "passed": true,
+          "evidence": "Sources section with URLs; general-knowledge items flagged to verify"
+        },
+        {
+          "text": "Ends with concrete, numbered next steps",
+          "passed": true,
+          "evidence": "'## Next steps' numbered 1-8"
+        },
+        {
+          "text": "Compares all three named universities (TUM, UvA, KTH) directly",
+          "passed": true,
+          "evidence": "'Short answer' covers UvA, TUM and KTH one by one"
+        },
+        {
+          "text": "Converts costs to INR",
+          "passed": true,
+          "evidence": "Total per year in \u20b9 lakh in the table and the text"
+        },
+        {
+          "text": "Flags that the student must take IELTS/TOEFL before applying",
+          "passed": true,
+          "evidence": "'This week: book IELTS Academic' for Nov 2026, target 7.0"
+        },
+        {
+          "text": "Notes that TUM now charges tuition to non-EU students",
+          "passed": true,
+          "evidence": "'Since 2024 TUM charges non-EU master's students \u20ac4,000\u20136,000 per semester'"
+        },
+        {
+          "text": "Gives a clear final recommendation",
+          "passed": true,
+          "evidence": "'My recommendation: apply to TUM, and to KTH only with its scholarship. Drop UvA'"
+        },
+        {
+          "text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead",
+          "passed": true,
+          "evidence": "'UvA doesn't run an MSc in Mechanical Engineering'; suggests TU Delft, TU/e, Twente"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.571,
+        "passed": 4,
+        "failed": 3,
+        "total": 7,
+        "time_seconds": 124.0,
+        "tokens": 66196,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Groups universities into Reach, Match and Safety categories",
+          "passed": false,
+          "evidence": "Uses Tier 1/2/3 by country; only Malaysia is called a 'safety'. No Reach/Match/Safety classification per university"
+        },
+        {
+          "text": "Includes a comparison table with tuition, requirements and deadline columns",
+          "passed": false,
+          "evidence": "Tables have only University|Program|Notes columns: no tuition, requirements or deadline columns"
+        },
+        {
+          "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+          "passed": true,
+          "evidence": "'Sources (for key figures checked)' with 7 URLs, plus a note to verify"
+        },
+        {
+          "text": "Ends with concrete, numbered next steps",
+          "passed": false,
+          "evidence": "Timeline is a table (not numbered) in the middle; the answer ends with general tips"
+        },
+        {
+          "text": "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship",
+          "passed": true,
+          "evidence": "Mannheim's \u20ac1,500/semester and TUM flagged as over budget; the rest are in budget-friendly countries"
+        },
+        {
+          "text": "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)",
+          "passed": true,
+          "evidence": "Stipendium Hungaricum, CSC, GKS, T\u00fcrkiye Burslari, Erasmus Mundus"
+        },
+        {
+          "text": "Does not recommend Norway as a free-tuition option",
+          "passed": true,
+          "evidence": "Norway not recommended"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.714,
+        "passed": 5,
+        "failed": 2,
+        "total": 7,
+        "time_seconds": 86.3,
+        "tokens": 66806,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Groups universities into Reach, Match and Safety categories",
+          "passed": true,
+          "evidence": "Reach / Match / Likely lists in 'Our recommendation' (Likely \u2248 Safety)"
+        },
+        {
+          "text": "Includes a comparison table with tuition, requirements and deadline columns",
+          "passed": false,
+          "evidence": "Ontario table columns: Competitiveness|Extra requirements|Clinical strengths. No tuition or deadline columns"
+        },
+        {
+          "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+          "passed": true,
+          "evidence": "Sources section with URLs"
+        },
+        {
+          "text": "Ends with concrete, numbered next steps",
+          "passed": false,
+          "evidence": "Timeline is an unnumbered table; the only numbered list is open-house questions; ends with Caveats and Sources"
+        },
+        {
+          "text": "Mentions the OUAC application system and a January deadline",
+          "passed": true,
+          "evidence": "OUAC equal consideration January 15, 2027"
+        },
+        {
+          "text": "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)",
+          "passed": true,
+          "evidence": "English 4U, Biology 4U, Chemistry 4U, 4U math"
+        },
+        {
+          "text": "Addresses clinical placement / co-op quality, as the parent asked",
+          "passed": true,
+          "evidence": "Placement strengths column plus questions to ask"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.9,
+        "passed": 9,
+        "failed": 1,
+        "total": 10,
+        "time_seconds": 90.4,
+        "tokens": 59837,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Groups universities into Reach, Match and Safety categories",
+          "passed": true,
+          "evidence": "Reach / Target / Safer shortlist"
+        },
+        {
+          "text": "Includes a comparison table with tuition, requirements and deadline columns",
+          "passed": false,
+          "evidence": "The comparison table has tuition, living and requirement rows but no deadline row"
+        },
+        {
+          "text": "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+          "passed": true,
+          "evidence": "Sources section with 5 URLs"
+        },
+        {
+          "text": "Ends with concrete, numbered next steps",
+          "passed": true,
+          "evidence": "'## 4. Next steps' numbered 1-6, followed by a short bottom line"
+        },
+        {
+          "text": "Compares all three named universities (TUM, UvA, KTH) directly",
+          "passed": true,
+          "evidence": "Table columns TUM | KTH | UvA\u2192TU Delft"
+        },
+        {
+          "text": "Converts costs to INR",
+          "passed": true,
+          "evidence": "\u20b9 totals per year"
+        },
+        {
+          "text": "Flags that the student must take IELTS/TOEFL before applying",
+          "passed": true,
+          "evidence": "'Book IELTS, aiming for 7.0'"
+        },
+        {
+          "text": "Notes that TUM now charges tuition to non-EU students",
+          "passed": true,
+          "evidence": "'non-EU fees of \u20ac4,000\u20136,000 per semester, introduced recently'"
+        },
+        {
+          "text": "Gives a clear final recommendation",
+          "passed": true,
+          "evidence": "'Choose TUM'"
+        },
+        {
+          "text": "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead",
+          "passed": true,
+          "evidence": "'UvA: no' ME master's; suggests TU Delft / TU/e / Twente"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 156.7667,
+        "stddev": 6.0451,
+        "min": 150.2,
+        "max": 162.1
+      },
+      "tokens": {
+        "mean": 84144.6667,
+        "stddev": 4934.4406,
+        "min": 78557,
+        "max": 87904
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.7283,
+        "stddev": 0.165,
+        "min": 0.571,
+        "max": 0.9
+      },
+      "time_seconds": {
+        "mean": 100.2333,
+        "stddev": 20.6844,
+        "min": 86.3,
+        "max": 124.0
+      },
+      "tokens": {
+        "mean": 64279.6667,
+        "stddev": 3859.5324,
+        "min": 59837,
+        "max": 66806
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.27",
+      "time_seconds": "+56.5",
+      "tokens": "+19865"
+    }
+  },
+  "notes": [
+    "Only 1 run per config per eval (labelled 3 by the script). Treat stddev as variation across evals, not run-to-run noise.",
+    "Non-discriminating: Sources, scholarships, Norway, OUAC/prereqs, UvA-has-no-ME, TUM tuition, INR and IELTS all passed without the skill too. The baseline model already knows this domain well.",
+    "The skill's gain is entirely structural: a full comparison table (tuition + requirements + deadline) and numbered next steps. The baseline missed these in 2 of 3 and 3 of 3 evals respectively.",
+    "Cost: the skill took about 57s longer (+56%) and about 20k more tokens (+31%) per run. Its agents did more web searches (19-27 tool calls vs 7-15), driven by the 'verify fees and deadlines' instruction.",
+    "Not graded but noticed: the Pakistan baseline claimed Pakistanis don't need Germany's APS certificate, which is unverified. The with-skill Pakistan answer called the student 'he' in the subagent summary, but the answer itself uses 'you'."
+  ]
+}
