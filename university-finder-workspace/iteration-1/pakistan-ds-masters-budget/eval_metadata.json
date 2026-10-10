@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "pakistan-ds-masters-budget",
+  "prompt": "Hi! I'm from Lahore, Pakistan and I just finished my BS Computer Science with a CGPA of 3.2/4.0. My IELTS is 6.5 overall. I want to do a Master's in Data Science or AI, starting Fall 2027. My family can support around $15,000 per year total (tuition + living), so I really need either cheap tuition or a scholarship. I'm open to any country in Europe or Asia. Which universities should I apply to?",
+  "assertions": [
+    "Groups universities into Reach, Match and Safety categories",
+    "Includes a comparison table with tuition, requirements and deadline columns",
+    "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+    "Ends with concrete, numbered next steps",
+    "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship",
+    "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)",
+    "Does not recommend Norway as a free-tuition option"
+  ]
+}

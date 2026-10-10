@@ -1,0 +1,17 @@
+{
+  "eval_id": 3,
+  "eval_name": "compare-tum-uva-kth",
+  "prompt": "Should I go to TU Munich, University of Amsterdam, or KTH for a master's in mechanical engineering? I'm Indian, 8.4 CGPA from a tier-2 engineering college, GRE 318, no IELTS yet. Budget maybe 12-14 lakh INR per year.",
+  "assertions": [
+    "Groups universities into Reach, Match and Safety categories",
+    "Includes a comparison table with tuition, requirements and deadline columns",
+    "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+    "Ends with concrete, numbered next steps",
+    "Compares all three named universities (TUM, UvA, KTH) directly",
+    "Converts costs to INR",
+    "Flags that the student must take IELTS/TOEFL before applying",
+    "Notes that TUM now charges tuition to non-EU students",
+    "Gives a clear final recommendation",
+    "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead"
+  ]
+}

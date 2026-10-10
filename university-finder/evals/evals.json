@@ -1,0 +1,53 @@
+{
+  "skill_name": "university-finder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Hi! I'm from Lahore, Pakistan and I just finished my BS Computer Science with a CGPA of 3.2/4.0. My IELTS is 6.5 overall. I want to do a Master's in Data Science or AI, starting Fall 2027. My family can support around $15,000 per year total (tuition + living), so I really need either cheap tuition or a scholarship. I'm open to any country in Europe or Asia. Which universities should I apply to?",
+      "expected_output": "A Reach/Match/Safety shortlist focused on low-tuition or scholarship-backed options (e.g. Germany, Finland waivers, Italy, Erasmus Mundus, Malaysia, Turkey/Korea scholarships) with a comparison table, funding section, next steps, and sources. Should not recommend schools that clearly exceed $15k/year without flagging scholarship dependency.",
+      "files": [],
+      "assertions": [
+        "Groups universities into Reach, Match and Safety categories",
+        "Includes a comparison table with tuition, requirements and deadline columns",
+        "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+        "Ends with concrete, numbered next steps",
+        "Every recommended option fits the ~$15k/yr budget, or the response explicitly says it depends on a scholarship",
+        "Names at least two specific fully or partly funded scholarships relevant to a Pakistani student (e.g. Erasmus Mundus, DAAD, GKS, MEXT, T\u00fcrkiye Burslari, CSC)",
+        "Does not recommend Norway as a free-tuition option"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "my daughter is in grade 12 in Toronto, she has a 91% average and wants to study nursing. we'd prefer she stays in Ontario or at most somewhere else in Canada. budget isn't a huge issue but she'd like a school with a good co-op or clinical placement program. what are good options and what are the deadlines?",
+      "expected_output": "Canadian nursing (BScN) programs classified Reach/Match/Safety for a 91% Ontario student, with OUAC deadlines, prerequisite courses (e.g. Grade 12 Bio, Chem, English, Math), clinical placement notes, domestic tuition, and next steps.",
+      "files": [],
+      "assertions": [
+        "Groups universities into Reach, Match and Safety categories",
+        "Includes a comparison table with tuition, requirements and deadline columns",
+        "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+        "Ends with concrete, numbered next steps",
+        "Mentions the OUAC application system and a January deadline",
+        "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)",
+        "Addresses clinical placement / co-op quality, as the parent asked"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I go to TU Munich, University of Amsterdam, or KTH for a master's in mechanical engineering? I'm Indian, 8.4 CGPA from a tier-2 engineering college, GRE 318, no IELTS yet. Budget maybe 12-14 lakh INR per year.",
+      "expected_output": "A comparison of the three named universities for this profile (fees for non-EU, living costs converted to INR, requirements, deadlines, scholarships, admission odds), flagging that IELTS is needed, plus a few alternative Match/Safety suggestions since the budget is tight, and a clear recommendation.",
+      "files": [],
+      "assertions": [
+        "Groups universities into Reach, Match and Safety categories",
+        "Includes a comparison table with tuition, requirements and deadline columns",
+        "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+        "Ends with concrete, numbered next steps",
+        "Compares all three named universities (TUM, UvA, KTH) directly",
+        "Converts costs to INR",
+        "Flags that the student must take IELTS/TOEFL before applying",
+        "Notes that TUM now charges tuition to non-EU students",
+        "Gives a clear final recommendation",
+        "Points out that the University of Amsterdam has no mechanical engineering master's and suggests a Dutch technical university (TU Delft, TU Eindhoven or Twente) instead"
+      ]
+    }
+  ]
+}

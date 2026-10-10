@@ -1,0 +1,14 @@
+{
+  "eval_id": 2,
+  "eval_name": "canada-nursing-parent",
+  "prompt": "my daughter is in grade 12 in Toronto, she has a 91% average and wants to study nursing. we'd prefer she stays in Ontario or at most somewhere else in Canada. budget isn't a huge issue but she'd like a school with a good co-op or clinical placement program. what are good options and what are the deadlines?",
+  "assertions": [
+    "Groups universities into Reach, Match and Safety categories",
+    "Includes a comparison table with tuition, requirements and deadline columns",
+    "Includes a Sources section citing URLs or explicitly stating data is approximate and must be verified",
+    "Ends with concrete, numbered next steps",
+    "Mentions the OUAC application system and a January deadline",
+    "Lists Grade 12 prerequisite courses for nursing (e.g. Biology, Chemistry, English)",
+    "Addresses clinical placement / co-op quality, as the parent asked"
+  ]
+}
